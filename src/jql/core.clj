@@ -1,5 +1,5 @@
 (ns jql.core
-  (:use [clojure.tools.cli :refer [cli]])
+  (:use [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
 
 (def ^:dynamic
@@ -9,12 +9,20 @@
 
 (def cli-specs
   [["-H" "--host" "host name"
-    :default "localhost"]])
+    :default "localhost"]
+   ["-h" "--help"]])
+
+(defn exit [status message]
+  (println message)
+  ;(System/exit status)
+  )
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (cli args cli-specs))
+  (let [{:keys [options]} (parse-opts args cli-specs)]
+    (cond
+     (:help options) (exit 0 "i'm helper"))))
 
 (derive ::bash ::common)
 (derive ::batch ::common)
