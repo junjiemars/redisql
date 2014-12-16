@@ -17,5 +17,12 @@
     (cond
      (:help options) (println "i'm help"))))
 
+(def x 1)
+
+(defn f [a]
+  (let [b (* a 20)]
+    (println (+ b x))))
+
+
 
 
