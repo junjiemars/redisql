@@ -8,14 +8,13 @@
   [["-H" "--host" "host name"
     :default "localhost"]
    ["-p" "--port" "port number"
-    :defautl 6379]
+    :default 6379]
    ["-h" "--help"]])
 
 (defn parse-cli-specs
   [& args]
   (let [{:keys [options]} (parse-opts args cli-specs)]
-    (cond
-     (:help options) (println "i'm help"))))
+    (println options)))
 
 (def x 1)
 

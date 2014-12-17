@@ -1,16 +1,11 @@
 (ns jql.core
-  (:use [clojure.tools.cli :refer [parse-opts]])
   (:gen-class))
+
 
 (def ^:dynamic
   *current-implementation*)
 
 (def conf "resources/conf.clj")
-
-(def cli-specs
-  [["-H" "--host" "host name"
-    :default "localhost"]
-   ["-h" "--help"]])
 
 (defn exit [status message]
   (println message)
@@ -20,9 +15,8 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [{:keys [options]} (parse-opts args cli-specs)]
-    (cond
-     (:help options) (exit 0 "i'm helper"))))
+  (let [options (jql.cli/parse-cli-specs args)]
+    (println options)))
 
 (derive ::bash ::common)
 (derive ::batch ::common)
