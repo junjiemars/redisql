@@ -1,5 +1,6 @@
 (ns jql.cli
   (:use [clojure.tools.cli :refer [parse-opts]])
+  #_ ((:use [clojure.tools.trace]))
   (:gen-class))
 
 (declare parse-cli-specs)
@@ -15,14 +16,9 @@
   [& args]
   (let [{:keys [options arguments summary errors]}
         (parse-opts args cli-specs)]
-    (println options)))
-
-(def x 1)
-
-(defn f [a]
-  (let [b (* a 20)]
-    (println (+ b x))))
-
-
+    (println options)
+    (println arguments)
+    (println summary)
+    (println errors)))
 
 
