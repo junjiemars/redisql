@@ -1,5 +1,6 @@
 (ns jql.core
   (:use [jql.cli])
+  (:use [clojure.tools.trace])
   (:gen-class))
 
 (def ^:dynamic
