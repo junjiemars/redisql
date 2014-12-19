@@ -1,6 +1,6 @@
 (ns jql.core
+  (:use [jql.cli])
   (:gen-class))
-
 
 (def ^:dynamic
   *current-implementation*)
@@ -15,7 +15,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [options (jql.cli/parse-cli-specs args)]
+  (let [options (parse-cli-specs args)]
     (println options)))
 
 (derive ::bash ::common)

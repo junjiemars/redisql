@@ -13,7 +13,8 @@
 
 (defn parse-cli-specs
   [& args]
-  (let [{:keys [options]} (parse-opts args cli-specs)]
+  (let [{:keys [options arguments summary errors]}
+        (parse-opts args cli-specs)]
     (println options)))
 
 (def x 1)
