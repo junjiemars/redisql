@@ -1,5 +1,7 @@
 (ns jql.core
-  (:use [jql.cli])
+  (:use [clojure.tools.cli :refer [parse-opts]])
+  (:require [clojure.string :as string])
+  (:use [clojure.pprint])
   (:use [clojure.tools.trace])
   (:gen-class))
 
@@ -8,16 +10,39 @@
 
 (def conf "resources/conf.clj")
 
-(defn exit [status message]
-  (println message)
-  ;(System/exit status)
-  )
+(def cli-specs
+  [["-h" "--help"]
+   ["-H" "--host host" "redis host address"
+    :default "localhost"]
+   ["-p" "--port port" "redis port number"
+    :default 6379
+    :parse-fn #(Integer/parseInt %)
+    :validate [#(< 0 % 0x10000) "port number between 0 and 65536"]]])
+
+(defn- cli-usage
+  []
+  (println "usage: [-h|--help] [-H|--host] [-p|--post]")
+  (println (str \tab "--help: help"))
+  (println (str \tab "--host: redis host address"))
+  (println (str \tab "--port: port number")))
+
+(defn- cli-summary
+  ([] (cli-usage))
+  ([errors] (println errors)
+   (cli-usage)))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [options (parse-cli-specs args)]
-    (println options)))
+  (let [{:keys [options arguments summary errors]}
+        (parse-opts (vec args) cli-specs)]
+    (cond
+     (not (empty? errors)) (cli-summary
+                            (string/lower-case (apply str errors)))
+     (not (empty? arguments)) (cli-summary
+                               (str "unknown arguments:" arguments))
+     (:help options) (cli-summary)
+     :else options)))
 
 (derive ::bash ::common)
 (derive ::batch ::common)
