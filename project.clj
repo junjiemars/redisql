@@ -8,4 +8,6 @@
   :source-paths ["src"]
   :test-paths ["test"]
   :target-path "target/%s"
-  :dependencies [[org.clojure/clojure "1.6.0"]])
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [org.clojure/tools.cli "0.3.1"]
+                 [org.clojure/tools.trace "0.7.8"]])
