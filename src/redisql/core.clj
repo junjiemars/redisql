@@ -1,7 +1,8 @@
 (ns redisql.core
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :as string]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (defn exit
@@ -10,9 +11,11 @@
   (System/exit status))
 
 (def cli-options
-  [["-e" "--eval input" "Evalute input"
-    :default ""
-    :parse-fn #(str %)]
+  [["-f" "--file BNF" "BNF file"
+    :default "sample.bnf"
+    :validate [#(.exists (io/as-file %))
+               "BNF file not found"]]
+   ["-e" "--eval input" "Evalute input"]
    ["-v" nil "Verbosity level"
     :id :verbosity
     :default 0
@@ -29,8 +32,10 @@
       errors (exit 1 (str "! error: "
                           args \newline errors))
       (:eval options)
-      (let [input (:eval options)]
+      (let [input (:eval options)
+            bnf (:file options)]
         (println input)
+        (println bnf)
         (log/debug input))
 
       :else (exit 1 summary))))
