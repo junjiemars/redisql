@@ -1,6 +1,6 @@
-(ns jql.core-test
+(ns redisql.core-test
   (:require [clojure.test :refer :all]
-            [jql.core :refer :all]))
+            [redisql.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

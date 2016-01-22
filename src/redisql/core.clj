@@ -1,4 +1,4 @@
-(ns jql.core
+(ns redisql.core
   (:use [clojure.tools.cli :refer [parse-opts]])
   (:require [clojure.string :as string])
   (:use [clojure.pprint])
