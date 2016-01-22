@@ -3,11 +3,16 @@
   :url "https://github.com/junjiemars/redisql"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  ;:main ^:skip-aot redisql.core
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [org.clojure/tools.cli "0.3.3"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [ch.qos.logback/logback-classic "1.1.1"]
+                 [instaparse "1.4.1"]]
   :main redisql.core
-  :source-paths ["src"]
-  :test-paths ["test"]
-  :target-path "target/%s"
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/tools.cli "0.3.1"]
-                 [org.clojure/tools.trace "0.7.8"]])
+  :profiles {:dev {:jvm-ops ["-Droot-level=DEBUG"]
+                   :global-vars {*warn-on-reflection* true}
+                   :javac-options ["-g"]}
+             :uberjar {:aot :all
+                       :jvm-opts ["-Droot-level=INFO"]
+                       :global-vars {*warn-on-reflection* true}
+                       :javac-options ["-g"]}})
