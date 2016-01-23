@@ -24,7 +24,7 @@
 
 (def cli-options
   [["-b" "--bnf INPUT" "BNF input/@file"
-    :default "@sample.bnf"
+    :default (slurp "sample.bnf")
     :validate [cli-validate-file-opt
                "BNF file not found"]
     :parse-fn cli-parse-file-arg]
@@ -58,5 +58,3 @@
         (println ((i/parser bnf) input)))
 
       :else (exit 1 summary))))
-
-

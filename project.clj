@@ -7,7 +7,8 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ch.qos.logback/logback-classic "1.1.1"]
-                 [instaparse "1.4.1"]]
+                 [instaparse "1.4.1"]
+                 [com.taoensso/carmine "2.12.2"]]
   :main redisql.core
   :profiles {:dev {:jvm-ops ["-Droot-level=DEBUG"]
                    :global-vars {*warn-on-reflection* true}

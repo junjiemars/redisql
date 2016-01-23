@@ -4,9 +4,13 @@
 
 (deftest test-cli-parsing
   (testing "cli-validate-file-opt"
-    (is (true? (cli-validate-file-opt "sample.bnf")))
-    (is (true? (cli-validate-file-opt "@sample.bnf"))))
+    (let [s "sample.bnf"
+          f "@sample.bnf"]
+      (is (true? (cli-validate-file-opt s)))
+      (is (true? (cli-validate-file-opt f)))))
 
   (testing "cli-parse-file-arg"
-    (is (= "sample.bnf" (cli-parse-file-arg "sample.bnf")))
-    (is (< 0 (count (cli-parse-file-arg "@sample.bnf"))))))
+    (let [s "sample.bnf"
+          f "@sample.bnf"]
+      (is (= s (cli-parse-file-arg s)))
+      (is (< 0 (count (cli-parse-file-arg f)))))))
