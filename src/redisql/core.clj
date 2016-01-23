@@ -49,12 +49,16 @@
                           args \newline errors))
       (:eval options)
       (let [input (:eval options)
-            bnf (:bnf options)]
+            bnf (:bnf options)
+            p (i/parser bnf)
+            out (i/parses p input)]
         (println "BNF:----------")
         (println bnf \newline)
         (println "EVAL:---------")
         (println input \newline)
         (println "OUT:----------")
-        (println ((i/parser bnf) input)))
+        (if (i/failure? out)
+          (println (i/get-failure out))
+          (println out)))
 
       :else (exit 1 summary))))
