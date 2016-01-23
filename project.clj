@@ -1,4 +1,4 @@
-(defproject redisql "0.1.0-SNAPSHOT"
+(defproject redisql "0.1.0"
   :description "redis query language like sql"
   :url "https://github.com/junjiemars/redisql"
   :license {:name "Eclipse Public License"

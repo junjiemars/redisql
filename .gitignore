@@ -12,3 +12,4 @@ deps/
 .lein-failures
 .idea/
 .nrepl-port
+redisql.log

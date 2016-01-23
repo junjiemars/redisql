@@ -1,6 +1,5 @@
 (ns redisql.core
   (:require [clojure.tools.cli :refer [parse-opts]]
-            [clojure.string :as string]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [instaparse.core :as i])
@@ -11,12 +10,28 @@
   (println msg)
   (System/exit status))
 
+(defn cli-validate-file-opt
+  [o]
+  (if (= \@ (first o))
+    (.exists (io/as-file (subs o 1)))
+    true))
+
+(defn cli-parse-file-arg
+  [a]
+  (if (= \@ (first a))
+    (slurp (subs a 1))
+    a))
+
 (def cli-options
-  [["-f" "--file BNF" "BNF file"
-    :default "sample.bnf"
-    :validate [#(.exists (io/as-file %))
-               "BNF file not found"]]
-   ["-e" "--eval input" "Evalute input"]
+  [["-b" "--bnf INPUT" "BNF input/@file"
+    :default "@sample.bnf"
+    :validate [cli-validate-file-opt
+               "BNF file not found"]
+    :parse-fn cli-parse-file-arg]
+   ["-e" "--eval INPUT" "Evalute input/@file"
+    :validate [cli-validate-file-opt
+               "Eval file not found"]
+    :parse-fn cli-parse-file-arg]
    ["-v" nil "Verbosity level"
     :id :verbosity
     :default 0
@@ -24,7 +39,7 @@
    ["-h" "--help"]])
 
 (defn -main
-  "Evalute input then output"
+  "Evalute input with BNF then output"
   [& args]
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
@@ -34,12 +49,13 @@
                           args \newline errors))
       (:eval options)
       (let [input (:eval options)
-            bnf (slurp (:file options))]
-        (println input)
-        (println bnf)
-        (println "------------------")
-        ((i/parser bnf) input)
-        (log/debug input))
+            bnf (:bnf options)]
+        (println "BNF:----------")
+        (println bnf \newline)
+        (println "EVAL:---------")
+        (println input \newline)
+        (println "OUT:----------")
+        (println ((i/parser bnf) input)))
 
       :else (exit 1 summary))))
 
