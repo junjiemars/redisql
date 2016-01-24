@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [redisql.core :refer :all]))
 
-(deftest test-cli-parsing
+(deftest test-cli-parse
   (testing "cli-validate-file-opt"
     (let [s "sample.bnf"
           f "@sample.bnf"]
@@ -14,3 +14,12 @@
           f "@sample.bnf"]
       (is (= s (cli-parse-file-arg s)))
       (is (< 0 (count (cli-parse-file-arg f)))))))
+
+(deftest test-bnf-parse
+  (testing "parse"
+    (let [bnf "S=AB*
+               AB=A B
+               A='a'+
+               B='b'+"
+          i1 "aaabb"]
+      (is (not (nil? (parse bnf i1)))))))

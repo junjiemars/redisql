@@ -1,7 +1,41 @@
 (ns redisql.sql
   (:require [clojure.tools.logging :as log]
-            [instaparse.core :as i])
+            [instaparse.core :as i]
+            [clojure.java.io :as io]
+            [taoensso.carmine :as c]
+            [redisql.redis :as r]
+            [clojure.string :as s])
   (:gen-class))
 
-;(def sql (i/parser (slurp "sql92.bnf")))
+(def whitespace (i/parser "whitespace = #'\\s+'"))
 
+(def bnfp (i/parser (slurp (io/resource "sql.bnf"))
+                    :output-format :enlive
+                    :auto-whitespace whitespace))
+
+(defn norm
+  [s]
+  (s/lower-case (s/trim s)))
+
+(def vtable {:insert
+             (fn [table columns values]
+               (println table)
+               (println columns)
+               (println values)
+               (let [t (:content table)
+                     c (:content columns)
+                     v (:content values)]
+                 (println t)
+                 (println c)
+                 (println v)
+                 (r/c* (c/sadd (str (first t) "_id") (first v)))))})
+
+
+
+(defn execute
+  [sql &args]
+  (let [ast (i/parse bnfp sql)
+        f? (i/failure? ast)]
+    (if f?
+      (i/get-failure ast)
+      (i/transform vtable ast))))

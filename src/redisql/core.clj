@@ -2,8 +2,17 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
-            [instaparse.core :as i])
+            [instaparse.core :as i]
+            [redisql.sql :as sql])
   (:gen-class))
+
+(defn parse
+  [bnf input]
+  (let [p (i/parser bnf sql/whitespace)
+        out (i/parse p input)]
+    (if (i/failure? out)
+      (i/get-failure out)
+      out)))
 
 (defn exit
   [status msg]
@@ -49,16 +58,12 @@
                           args \newline errors))
       (:eval options)
       (let [input (:eval options)
-            bnf (:bnf options)
-            p (i/parser bnf)
-            out (i/parses p input)]
+            bnf (:bnf options)]
         (println "BNF:----------")
         (println bnf \newline)
         (println "EVAL:---------")
         (println input \newline)
         (println "OUT:----------")
-        (if (i/failure? out)
-          (println (i/get-failure out))
-          (println out)))
+        (parse bnf input))
 
       :else (exit 1 summary))))

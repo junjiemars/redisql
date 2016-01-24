@@ -1,0 +1,39 @@
+s = insert|create
+
+insert = <k_insert> <k_into> n_table l_column <k_values> l_value
+create = <k_create> <k_table> n_table l_d_column
+
+l_column = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
+l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
+l_d_column = <l_paren> (d_column | d_column (<comma> d_column)*)+ <r_paren>
+d_column = id d_type l_d_constraint
+d_type = d_number | d_string
+l_d_constraint = (k_not k_null) | (k_default (string | number)) | (k_primary k_key id)
+
+k_insert = 'insert'
+k_into = #"\s*into\s+"
+k_values = 'values'
+k_create = #"\s*create\s+"
+k_table = #"\s*table\s+"
+k_not = 'not'
+k_null = 'null'
+k_primary = 'primary'
+k_key = 'key'
+k_default = 'default'
+
+<n_column> = id
+<n_value> = string | number
+n_table = id
+d_number = #"number\s*\("  digit+ space* comma space* digit+ space* #"\s*\)\s*"
+d_string = 'varchar2(' digit+ ')'
+
+<id> = #"[a-zA-Z][_a-zA-Z0-9]*"
+space = #"\s"
+comma = #"\s*,\s*"
+l_paren = #"\s*\(\s*"
+r_paren = #"\s*\)\s*"
+<string> = #"'[a-zA-Z]+'"
+<number> = #"([+-])?[0-9]+(\.?[0-9]*)"
+<digit> = #"[0-9]"
+
+

@@ -1,5 +1,5 @@
 (ns redisql.redis
-  (:require [taoensso.carmine :as r :refer (wcar)]
+  (:require [taoensso.carmine :as c :refer (wcar)]
             [clojure.tools.logging :as log])
   (:gen-class))
 
