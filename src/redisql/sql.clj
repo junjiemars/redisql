@@ -9,8 +9,8 @@
 
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
-(def bnfp (i/parser (slurp (io/resource "sql.bnf"))
-                    :output-format :enlive
+(def bnf (i/parser (slurp (io/resource "sql.bnf"))
+                    ;:output-format :enlive
                     :auto-whitespace whitespace))
 
 (defn norm
@@ -28,13 +28,18 @@
                  (println t)
                  (println c)
                  (println v)
-                 (r/c* (c/sadd (str (first t) "_id") (first v)))))})
+                 (r/c* (c/sadd (str (first t) "_id")
+                               (first v)))))
+             :create
+             (fn [table columns]
+               (println table)
+               (println columns))})
 
 
 
 (defn execute
   [sql &args]
-  (let [ast (i/parse bnfp sql)
+  (let [ast (i/parse bnf sql)
         f? (i/failure? ast)]
     (if f?
       (i/get-failure ast)
