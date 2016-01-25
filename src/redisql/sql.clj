@@ -10,7 +10,7 @@
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
 (def bnf (i/parser (slurp (io/resource "sql.bnf"))
-                    ;:output-format :enlive
+                    :output-format :enlive
                     :auto-whitespace whitespace))
 
 (defn norm
