@@ -1,4 +1,4 @@
-s = (insert|create) ';'*
+s = (insert|create) ';'?
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column

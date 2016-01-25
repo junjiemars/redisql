@@ -25,3 +25,7 @@
 (defn save-*config*
   "Save *config* to file"
   ([f c] (spit f c)))
+
+(defn ping
+  []
+  (c* (c/ping)))
