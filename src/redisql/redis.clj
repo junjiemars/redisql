@@ -1,12 +1,16 @@
 (ns redisql.redis
   (:require [taoensso.carmine :as c :refer (wcar)]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (def ^:dynamic *config*
   (atom {:pool {}
          :spec {:host "localhost"
                 :port 6379}}))
+
+(def ^:dynamic *lua*
+  (atom {:scheme ""}))
 
 (defmacro c*
   [& body]
@@ -29,3 +33,22 @@
 (defn ping
   []
   (c* (c/ping)))
+
+(defn inject-scheme-script
+  []
+  (let [l @*lua*
+        s (:scheme l)
+        f (slurp (io/resource "scheme.lua"))]
+    (when (or (empty? s)
+              (zero? (first (c* (c/script-exists s)))))
+      (let [sha (c* (c/script-load f))]
+        (swap! *lua* merge {:scheme sha})))))
+
+(defn create-scheme
+  ([s] (c* (c/evalsha s 0 '())))
+  ([s n k & args] (c* (c/evalsha s n k args))))
+
+
+(defn create-table
+  [t]
+  (create-scheme (:scheme @*lua*) 1 t))

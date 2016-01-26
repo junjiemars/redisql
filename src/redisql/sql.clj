@@ -32,13 +32,18 @@
                                (first v)))))
              :create
              (fn [table columns]
-               (println table)
-               (println columns))})
-
-
+               (log/debug "# table:" table)
+               (log/debug "# columns:" columns)
+               (let [t (first (:content table))
+                     cs (:content columns)
+                     m {}]
+                 (clojure.pprint/pprint (:content (first cs)))
+                 (log/debug (map #([(:tag %) (:content %)])
+                                 (:content cs)))
+                 ))})
 
 (defn execute
-  [sql &args]
+  [sql & args]
   (let [ast (i/parse bnf sql)
         f? (i/failure? ast)]
     (if f?

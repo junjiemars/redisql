@@ -7,8 +7,9 @@ create = <k_create> <k_table> n_table l_d_column
 l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
 l_d_column = <l_paren> (d_column | d_column (<comma> d_column)*)+ <r_paren>
 
-d_column = id d_type d_col_constraint
-d_type = d_number | d_string
+d_column = d_id d_type d_col_constraint
+d_id = id
+<d_type> = d_number | d_string
 d_col_constraint = (k_not_null | k_primary_key | d_default)*
 d_default = <'default'> n_value
 d_number = 'number' <l_paren> <positive_int> <comma> <positive_int> <r_paren>

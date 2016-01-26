@@ -14,3 +14,17 @@
     (let [f "redis.conf"]
       (is (not (nil? (read-*config* f))))
       (io/delete-file f))))
+
+(deftest test-redis
+  ; Redis should on
+  (testing "inject-scheme-script"
+    (is (not (nil? (scheme)))))
+
+  (testing "create-scheme"
+    (let [s (:scheme @*lua*)]
+      (is (vector? (create-scheme s)))))
+
+  (testing "create-table"
+    (let [t "X"]
+      (is (vector? (create-table t))))))
+

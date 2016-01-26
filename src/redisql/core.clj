@@ -8,7 +8,7 @@
 
 (defn parse
   [bnf input]
-  (let [p (i/parser bnf sql/whitespace)
+  (let [p (i/parser bnf :auto-whitespace sql/whitespace)
         out (i/parse p input)]
     (if (i/failure? out)
       (i/get-failure out)

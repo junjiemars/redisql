@@ -21,5 +21,6 @@
                AB=A B
                A='a'+
                B='b'+"
-          i1 "aaabb"]
-      (is (not (nil? (parse bnf i1)))))))
+          i1 "aaabb"
+          v1 [:S [:AB [:A "a" "a" "a"] [:B "b" "b"]]]]
+      (is (= v1 (parse bnf i1))))))
