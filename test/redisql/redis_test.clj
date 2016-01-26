@@ -18,7 +18,7 @@
 (deftest test-redis
   ; Redis should on
   (testing "inject-scheme-script"
-    (is (not (nil? (scheme)))))
+    (is (not (nil? (inject-scheme-script)))))
 
   (testing "create-scheme"
     (let [s (:scheme @*lua*)]
