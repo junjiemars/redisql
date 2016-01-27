@@ -18,9 +18,9 @@
   (s/lower-case (s/trim s)))
 
 (defn field-define
-  [f]
-  (log/debug "# f:" f)
-  (loop [f1 f
+  [field]
+  (log/debug "# field:" field)
+  (loop [f1 field
          m {}]
     (if (empty? f1)
       m
@@ -37,9 +37,9 @@
                  :else m))))))
 
 (defn column-define
-  [c]
-  (log/debug "# c:" c)
-  (loop [x c
+  [column]
+  (log/debug "# column:" column)
+  (loop [x column
          m {}]
     (if (empty? x)
       m
@@ -59,7 +59,7 @@
                    (into m (field-define (:content c1)))
                    :esle m)))))))
 
-(def vtable {:s (fn [x] nil)
+(def vtable {:s (fn [x y] nil)
              :insert
              (fn [table columns values]
                (log/debug "# table:" table)
@@ -79,15 +79,16 @@
                (log/debug "# columns:" columns)
                (let [t (first (:content table))
                      cs (:content columns)]
-                 (r/create-table t)
+                 (r/make-table t)
                  (doseq [c cs]
                    (column-define (:content c)))))})
 
-(defn execute
-  [sql & args]
-  (let [ast (i/parse bnf sql)
-        f? (i/failure? ast)]
-    (if f?
-      (i/get-failure ast)
-      (i/transform vtable ast))))
+(defn run
+  ([sql & args]
+   (let [ast (i/parse bnf sql)
+         f? (i/failure? ast)
+         n (seq args)]
+     (if f?
+       (i/get-failure ast)
+       (i/transform vtable ast)))))
 

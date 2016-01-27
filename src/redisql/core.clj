@@ -3,7 +3,8 @@
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [instaparse.core :as i]
-            [redisql.sql :as sql])
+            [redisql.sql :as sql]
+            [redisql.redis :as r])
   (:gen-class))
 
 (defn parse
@@ -41,6 +42,14 @@
     :validate [cli-validate-file-opt
                "Eval file not found"]
     :parse-fn cli-parse-file-arg]
+   ["-s" "--sql SQL" " SQL input/@file"
+    :validate [cli-validate-file-opt
+               "SQL file not found"]
+    :parse-fn cli-parse-file-arg]
+   ["-n" "--dry-run" "Show what would have been parsed"
+    :id :dry
+    :default 0
+    :assoc-fn (fn [m k _] (update-in m [k] inc))]
    ["-v" nil "Verbosity level"
     :id :verbosity
     :default 0
@@ -65,5 +74,12 @@
         (println input \newline)
         (println "OUT:----------")
         (parse bnf input))
+
+      (:sql options)
+      (let [
+            s (:sql options)
+            n (:dry options)]
+        (r/inject-scripts)
+        (sql/run s))
 
       :else (exit 1 summary))))

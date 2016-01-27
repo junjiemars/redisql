@@ -1,10 +1,15 @@
---get column's Hash
+-- get column's Hash
 
-if (0 == table.getn(KEYS)) then
-  return 0
-else
+local n = table.getn(KEYS)
+local k1 = tonumber(KEYS[1])
+
+if (0 < n) then
   local t = KEYS[1]
   local c = KEYS[2]
-  local k = string.format('_T_%s_C_', t)
-  return redis.call('sadd', k, c)
+  local k = string.format('_T_%s', t)
+  local s = k .. '_C_'
+
+  if (1 == redis.call('sadd', s, c)) then
+     return k .. '_:%s_'
+  end
 end

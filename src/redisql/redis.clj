@@ -14,7 +14,7 @@
 
 (defmacro c*
   [& body]
-  `(c/wcar *config* ~@body))
+  `(c/wcar @*config* ~@body))
 
 (defn read-*config*
   "Read config from file and store it in *config*"
@@ -34,7 +34,7 @@
   []
   (c* (c/ping)))
 
-(defn inject-scheme-script
+(defn inject-scripts
   []
   (let [l @*lua*
         s (:scheme l)
@@ -44,11 +44,11 @@
       (let [sha (c* (c/script-load f))]
         (swap! *lua* merge {:scheme sha})))))
 
-(defn create-scheme
+(defn make-scheme
   ([s] (c* (c/evalsha s 0 '())))
   ([s n k & args] (c* (c/evalsha s n k args))))
 
 
-(defn create-table
+(defn make-table
   [t]
-  (create-scheme (:scheme @*lua*) 1 t))
+  (make-scheme (:scheme @*lua*) 1 t))

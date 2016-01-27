@@ -17,14 +17,14 @@
 
 (deftest test-redis
   ; Redis should on
-  (testing "inject-scheme-script"
-    (is (not (nil? (inject-scheme-script)))))
+  (testing "inject-scripts"
+    (is (not (nil? (inject-scripts)))))
 
-  (testing "create-scheme"
+  (testing "make-scheme"
     (let [s (:scheme @*lua*)]
-      (is (vector? (create-scheme s)))))
+      (is (vector? (make-scheme s)))))
 
-  (testing "create-table"
+  (testing "make-table"
     (let [t "X"]
-      (is (vector? (create-table t))))))
+      (is (vector? (make-table t))))))
 
