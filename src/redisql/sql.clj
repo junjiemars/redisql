@@ -79,8 +79,9 @@
                (log/debug "# columns:" columns)
                (let [t (first (:content table))
                      cs (:content columns)]
+                 (r/create-table t)
                  (doseq [c cs]
-                   (clojure.pprint/pprint (column-define (:content c))))))})
+                   (column-define (:content c)))))})
 
 (defn execute
   [sql & args]
