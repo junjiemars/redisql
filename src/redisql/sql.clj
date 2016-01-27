@@ -81,7 +81,8 @@
                      cs (:content columns)]
                  (r/make-table t)
                  (doseq [c cs]
-                   (column-define (:content c)))))})
+                   (let [d (column-define (:content c))]
+                     (r/make-column t d)))))})
 
 (defn run
   ([sql & args]

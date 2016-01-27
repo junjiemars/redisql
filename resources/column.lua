@@ -1,7 +1,6 @@
 -- get column's Hash
 
 local n = table.getn(KEYS)
-local k1 = tonumber(KEYS[1])
 
 if (0 < n) then
   local t = KEYS[1]
