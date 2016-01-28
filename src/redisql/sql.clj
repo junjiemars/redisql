@@ -13,9 +13,21 @@
                     :output-format :enlive
                     :auto-whitespace whitespace))
 
+(def dry-bnf (i/parser (slurp (io/resource "sql.bnf"))
+                    :output-format :hiccup
+                    :auto-whitespace whitespace))
+
 (defn norm
   [s]
   (s/lower-case (s/trim s)))
+
+(defn dry-run
+  [sql]
+  (let [p (i/parse dry-bnf (norm sql))
+        f? (i/failure? p)]
+    (if f?
+      (i/get-failure p)
+      p)))
 
 (defn field-define
   [field]
@@ -60,24 +72,17 @@
                    (into m (field-define (:content c1)))
                    :esle m)))))))
 
-(def vtable {:s (fn [x y] nil)
+(def vtable {:s (fn [& args] nil)
              :insert
              (fn [table columns values]
-               (log/debug "# table:" table)
-               (log/debug "# columns:" columns )
-               (log/debug "# values:" values)
                (let [t (:content table)
                      c (:content columns)
                      v (:content values)]
                  (println t)
                  (println c)
-                 (println v)
-                 (r/c* (c/sadd (str (first t) "_id")
-                               (first v)))))
+                 (println v)))
              :create
              (fn [table columns]
-               (log/debug "# table:" table)
-               (log/debug "# columns:" columns)
                (let [t (first (:content table))
                      cs (:content columns)]
                  (r/make-table t)

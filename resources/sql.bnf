@@ -1,9 +1,9 @@
-s = (insert|create) ';'?
+s = (insert|create) <';'>?
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column
 
-<l_column> = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
+l_column = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
 l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
 l_d_column = <l_paren> (d_column | d_column (<comma> d_column)*)+ <r_paren>
 

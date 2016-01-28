@@ -4,7 +4,8 @@
             [clojure.java.io :as io]
             [instaparse.core :as i]
             [redisql.sql :as sql]
-            [redisql.redis :as r])
+            [redisql.redis :as r]
+            [clojure.pprint :as p])
   (:gen-class))
 
 (defn parse
@@ -76,10 +77,11 @@
         (parse bnf input))
 
       (:sql options)
-      (let [
-            s (:sql options)
-            n (:dry options)]
+      (let [s (:sql options)
+            n? (> (:dry options) 0)]
         (r/inject-scripts)
-        (sql/run s))
+        (if n?
+          (p/pprint (sql/dry-run s))
+          (sql/run s)))
 
       :else (exit 1 summary))))
