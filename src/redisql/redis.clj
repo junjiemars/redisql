@@ -11,7 +11,8 @@
 
 (def ^:dynamic *lua*
   (atom {:scheme ""
-         :column ""}))
+         :column ""
+         :insert ""}))
 
 (defmacro c*
   [& body]
@@ -69,3 +70,10 @@
   [t {:keys [NAME] :as k}]
   (when-let [d (c* (c/evalsha (:column @*lua*) 0 t NAME))]
     (c* (c/hmset* (format d (:NAME k)) k))))
+
+(defn make-row
+  [t fs vs]
+  (let [n (inc (count fs))
+        k (conj fs (first t))]
+    (println n k vs)
+    (c* (c/evalsha (:insert @*lua*) n fs vs))))

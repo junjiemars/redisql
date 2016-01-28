@@ -79,8 +79,9 @@
                      c (:content columns)
                      v (:content values)]
                  (println t)
-                 (println c)
-                 (println v)))
+                 (println c (type c))
+                 (println v)
+                 (r/make-row t c v)))
              :create
              (fn [table columns]
                (let [t (first (:content table))
