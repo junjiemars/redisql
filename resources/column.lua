@@ -7,6 +7,6 @@ if (2 <= n) then
   local s = k .. '_C_'
 
   if (1 == redis.call('sadd', s, c)) then
-     return k .. '_<%s>_'
+     return k .. '_[%s]_'
   end
 end
