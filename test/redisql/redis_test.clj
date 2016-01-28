@@ -21,10 +21,11 @@
     (is (not (nil? (inject-scripts)))))
 
   (testing "make-scheme"
-    (let [s (:scheme @*lua*)]
+    (when-let [s (:scheme (inject-scripts))]
       (is (vector? (make-scheme s)))))
 
   (testing "make-table"
-    (let [t "X"]
-      (is (vector? (make-table t))))))
+    (when (inject-scripts)
+        (let [t "X"]
+          (is (vector? (make-table t)))))))
 

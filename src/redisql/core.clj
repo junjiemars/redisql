@@ -79,7 +79,7 @@
       (let [
             s (:sql options)
             n (:dry options)]
-        (r/inject-script1)
+        (r/inject-scripts)
         (sql/run s))
 
       :else (exit 1 summary))))

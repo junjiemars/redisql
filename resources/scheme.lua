@@ -16,8 +16,8 @@ if (0 == redis.call('exists', _t_)) then
 end
 
 v[_t_n_] = 0
-if (0 < table.getn(KEYS)) then
-   local t_ = string.format("_T_%s_", KEYS[1])
+if (0 < table.getn(ARGV)) then
+   local t_ = string.format("_T_%s_", ARGV[1])
    v[_t_n_] = redis.call('sadd', _t_n_, t_)
 end
 

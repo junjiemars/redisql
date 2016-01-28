@@ -40,7 +40,8 @@
   [column]
   (log/debug "# column:" column)
   (loop [x column
-         m {}]
+         m {:NAME nil :TYPE nil
+            :NOT_NULL 0 :PRIMARY_KEY 0 :DEFAULT 0}]
     (if (empty? x)
       m
       (do

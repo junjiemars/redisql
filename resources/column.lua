@@ -1,10 +1,8 @@
--- get column's Hash
+local n = table.getn(ARGV)
 
-local n = table.getn(KEYS)
-
-if (0 < n) then
-  local t = KEYS[1]
-  local c = KEYS[2]
+if (2 <= n) then
+  local t = ARGV[1]
+  local c = ARGV[2]
   local k = string.format('_T_%s', t)
   local s = k .. '_C_'
 
