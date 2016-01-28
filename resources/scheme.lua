@@ -1,8 +1,8 @@
 local v = {}
 local _t_ = '_T_'
 local _t_n_ = '_T_N_'
-local _t_t_c_ = '_T_<T>_C_'
-local _t_t_d_c = '_T_<T>_:<C>_'
+local _t_t_c_ = '_T_[T]_C_'
+local _t_t_d_c = '_T_[T]_<C>_'
 
 v[_t_] = 'NO'
 if (0 == redis.call('exists', _t_)) then
@@ -10,14 +10,14 @@ if (0 == redis.call('exists', _t_)) then
                        'TABLES', _t_n_,
                        'TABLES_COMMENT', 'The set hold tables name',
                        'CLOUMNS', _t_t_c_,
-                       'COLUMNS_COMMENT', 'The set hold columns name, <T> will be replaced with Table name',
+                       'COLUMNS_COMMENT', 'The set hold columns name, [T] will be replaced with Table name',
                        'COLUMN_DEFINE', _t_t_d_c,
                        'COLUMN_DEFINE_COMMENT', 'The hash hold column definition, <C> will be replaced with Column name')
 end
 
 v[_t_n_] = 0
 if (0 < table.getn(ARGV)) then
-   local t_ = string.format("_T_%s_", ARGV[1])
+   local t_ = string.format("_T_[%s]_", ARGV[1])
    v[_t_n_] = redis.call('sadd', _t_n_, t_)
 end
 
