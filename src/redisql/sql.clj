@@ -86,10 +86,11 @@
              (fn [table columns]
                (let [t (first (:content table))
                      cs (:content columns)]
-                 (r/make-table t)
+                 ;(r/make-table t)
                  (doseq [c cs]
-                   (let [d (column-define (:content c))]
-                     (r/make-column t d)))))})
+                   (let [d (column-define (:content c))
+                         cn (:NAME d)]
+                     (println "!!!:" (r/make-table t cn d))))))})
 
 (defn run
   ([sql & args]

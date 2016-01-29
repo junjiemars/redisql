@@ -11,7 +11,7 @@
 
 (def ^:dynamic *lua*
   (atom {:scheme ""
-         :column ""
+         :table ""
          :insert ""}))
 
 (defmacro c*
@@ -63,8 +63,21 @@
 
 
 (defn make-table
-  [t]
-  (make-scheme (:scheme @*lua*) 0 t))
+  [t c d]
+  (when-let [s (make-scheme (:scheme @*lua*))]
+    (println "!:" t)
+    (println "!:" c)
+    (println "!:" d)
+    (let [m (apply dissoc d [:NAME])
+          k (keys m)
+          nk (count k)
+          v (conj (vals m) c t)]
+      (println "#:" k)
+      (println "#:" nk)
+      (println "#:" v)
+      (let [x (c* (c/evalsha (:table @*lua*) k v))]
+        (println x)
+        x))))
 
 (defn make-column
   [t {:keys [NAME] :as k}]

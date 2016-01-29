@@ -1,9 +1,5 @@
 local _t_n_ = '_T_N_'
-local v = 0
-local e_00947 = 947 --not enough values
-local e_00913 = 913 --too many values
-local e_00942 = 942 --table does not exist
-local e_2270 = 2270 --primary key does not exist
+local v = {0, 'OK'}
 
 local nk = table.getn(KEYS)
 local na = table.getn(ARGV)
@@ -16,15 +12,15 @@ end
 
 if (0 < nk) then
     if (na < nk-1) then
-        return e_00947
+        return {00947, 'not enough values'}
     elseif (na > nk-1) then
-        return e_00913
+        return {00913, 'not enough values'}
     end
 
     local t = KEYS[1]
     local _t = string.format('_T_[%s]_', t)
     if (0 == redis.call('sismember', '_T_N_', _t)) then
-        return e_00942
+        return {00942, 'table does not exist'}
     else
         local npk = 0
         local del = {}

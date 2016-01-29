@@ -11,29 +11,37 @@ local def_table = function(t)
     return _t_t_
 end
 
-local def_column = function(t, c, v)
+local def_column = function(t, c)
     local cs = t..'C_'
     local cd = string.format(t..'[%s]_', c)
-    if (1 == redis.call('sadd', cs, cd)) then
-        redis.call('hset', cd, v)
+    if (1 == redis.call('sadd', cs, c)) then
+        redis.call('hset', cd, 'NAME', c)
     end
     return cd
 end
 
-local make_column = function(c, n, v)
+local make_column = function(t, cn, c, n, v)
     local d = redis.call('hset', c, n, v)
+    if ('PRIMARY_KEY' == n) then
+        local pk = t..'PK_'
+        if ('1' == v) then
+            redis.call('sadd', pk, cn)
+        else
+            redis.call('srem', pk, cn)
+        end
+    end
     return d
 end
 
-if (0 < nk) and (nk == na+2) then
-    local t = def_table(KEYS[1])
-    local cn = KEYS[2]
+if (nk+2 == na) then
+    local t = def_table(ARGV[1])
+    local cn = ARGV[2]
     local c = def_column(t, cn)
-    if (2 < nk) then
-        for i=3,nk do
+    if (0 < nk) then
+        for i=1,nk do
             local n = KEYS[i]
-            local v = ARGV[i-2]
-            local d = make_column(c, n, v)
+            local v = ARGV[i+2]
+            local d = make_column(t, cn, c, n, v)
             redis.debug(d)
         end
         return 1
@@ -41,18 +49,3 @@ if (0 < nk) and (nk == na+2) then
 end
 
 return 0
-
---[[
-local n = table.getn(ARGV)
-
-if (2 <= n) then
-  local t = ARGV[1]
-  local c = ARGV[2]''
-  local k = string.format('_T_[%s]', t)
-  local s = k .. '_C_'
-
-  if (1 == redis.call('sadd', s, c)) then
-     return k .. '_[%s]_'
-  end
-end
---]]
