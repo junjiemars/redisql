@@ -1,7 +1,10 @@
 (ns redisql.redis
-  (:require [taoensso.carmine :as c :refer (wcar)]
-            [clojure.tools.logging :as log]
+  (:require [clojure.tools.logging :as log]
             [clojure.java.io :as io])
+  (:import (redis.clients.jedis Jedis
+                                BinaryJedis
+                                JedisPool
+                                JedisPoolConfig))
   (:gen-class))
 
 (def ^:dynamic *config*
@@ -14,9 +17,8 @@
          :table ""
          :insert ""}))
 
-(defmacro c*
-  [& body]
-  `(c/wcar @*config* ~@body))
+(def ^:dynamic ^JedisPool *pool*
+  (atom (JedisPool.)))
 
 (defn read-*config*
   "Read config from file and store it in *config*"
@@ -32,12 +34,57 @@
   "Save *config* to file"
   ([f c] (spit f c)))
 
-(defn ping
-  []
-  (c* (c/ping)))
+(defn ^Jedis borrow []
+  (.getResource ^JedisPool @*pool*))
 
-(defn inject-scripts
-  []
+(defmacro in-pool
+  [bindings & body]
+  (cond
+    (= (count bindings) 0)
+    `(do ~@body)
+    (symbol? (bindings 0))
+    `(let ~(subvec bindings 0 2)
+       ~(vary-meta (bindings 0) assoc :tag 'Jedis)
+       (try
+         (in-pool ~(subvec bindings 2) ~@body)
+         (finally
+           (. ~(bindings 0) close))))))
+
+(defn ping []
+  (in-pool [j (borrow)]
+           (.ping j)))
+
+(defn script-exists
+  [^String s]
+  (in-pool [j (borrow)]
+           (.scriptExists j s)))
+
+(defn script-load
+  [^String s]
+  (in-pool [j (borrow)]
+           (.scriptLoad j s)))
+
+(defn evalsha
+  ([^String s] (evalsha s nil))
+  ([^String s ks & argv]
+   (let [n (count ks)
+         v (concat ks argv)]
+     (in-pool [j ^Jedis (borrow)]
+              (.evalsha j s n
+                        ^"[Ljava.lang.String;"
+                        (into-array String (map str v)))))))
+
+(defn exists
+  [^String k]
+  (in-pool [j (borrow)]
+           (.exists j k)))
+
+(defn hmset
+  [^String k {:as fs}]
+  (in-pool [j (borrow)]
+           (.hmset j k ^java.util.Map fs)))
+
+(defn inject-scripts []
   (let [l @*lua*
         m (map vector l)]
     (into {}
@@ -50,21 +97,21 @@
                            (format "%s.lua" (name k))))]
                    (if (or (empty? v)
                            (zero? (first
-                                   (c* (c/script-exists k)))))
-                     (let [s (c* (c/script-load f))]
+                                   (script-exists k))))
+                     (let [s (script-load f)]
                        (swap! *lua* merge {k s})
                        {k s})
                      {k v})))
                m))))
 
-(defn make-scheme
-  ([s] (c* (c/evalsha s 0 '())))
-  ([s n k & args] (c* (c/evalsha s n k args))))
-
+(defn make-scheme []
+  (let [s (:scheme @*lua*)]
+    (in-pool [j ^Jedis (borrow)]
+             (evalsha s))))
 
 (defn make-table
   [t c d]
-  (when-let [s (make-scheme (:scheme @*lua*))]
+  (when-let [s (make-scheme)]
     (println "!:" t)
     (println "!:" c)
     (println "!:" d)
@@ -75,18 +122,7 @@
       (println "#:" k)
       (println "#:" nk)
       (println "#:" v)
-      (let [x (c* (c/evalsha (:table @*lua*) k v))]
+      (let [x (evalsha (:table @*lua*) k v)]
         (println x)
         x))))
 
-(defn make-column
-  [t {:keys [NAME] :as k}]
-  (when-let [d (c* (c/evalsha (:column @*lua*) 0 t NAME))]
-    (c* (c/hmset* (format d (:NAME k)) k))))
-
-(defn make-row
-  [t fs vs]
-  (let [n (inc (count fs))
-        k (conj fs (first t))]
-    (println n k vs)
-    (c* (c/evalsha (:insert @*lua*) n fs vs))))

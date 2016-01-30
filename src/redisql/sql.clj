@@ -2,7 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [instaparse.core :as i]
             [clojure.java.io :as io]
-            [taoensso.carmine :as c]
+            ;[taoensso.carmine :as c]
             [redisql.redis :as r]
             [clojure.string :as s])
   (:gen-class))
@@ -81,7 +81,8 @@
                  (println t)
                  (println c (type c))
                  (println v)
-                 (r/make-row t c v)))
+                 ;(r/make-row t c v)
+                 ))
              :create
              (fn [table columns]
                (let [t (first (:content table))
