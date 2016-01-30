@@ -78,7 +78,7 @@
 
       (:sql options)
       (let [s (:sql options)
-            n? (> (:dry options) 0)]
+            n? (pos? (:dry options))]
         (r/inject-scripts)
         (if n?
           (p/pprint (sql/dry-run s))

@@ -33,6 +33,8 @@ local make_column = function(t, cn, c, n, v)
     return d
 end
 
+-- keys argv:
+-- table column_name column_defintions column
 if (nk+2 == na) then
     local t = def_table(ARGV[1])
     local cn = ARGV[2]

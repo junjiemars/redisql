@@ -39,7 +39,7 @@
       (is (pos? (count (:table m))))))
 
   (testing "make-scheme"
-    (let [v [":_T_" "OK"]]
+    (let [v ["_T_" "OK"]]
       (is (= v (make-scheme)))))
 
   (comment

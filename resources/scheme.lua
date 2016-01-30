@@ -15,4 +15,4 @@ v[_t_] = redis.call('hmset', _t_,
                     'COLUMN_DEFINE', _t_t_d_c,
                     'COLUMN_DEFINE_COMMENT', 'The hash hold column definition, [C] will be replaced with Column name')
 
-return {':'.._t_, v[_t_]}
+return {_t_, v[_t_]}

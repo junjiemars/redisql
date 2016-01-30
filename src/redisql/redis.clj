@@ -69,7 +69,7 @@
   ([^String s ks & argv]
    (let [n (count ks)
          v (concat ks argv)]
-     (in-pool [j ^Jedis (borrow)]
+     (in-pool [j (borrow)]
               (.evalsha j s n
                         ^"[Ljava.lang.String;"
                         (into-array String (map str v)))))))
@@ -85,28 +85,21 @@
            (.hmset j k ^java.util.Map fs)))
 
 (defn inject-scripts []
-  (let [l @*lua*
-        m (map vector l)]
-    (into {}
-          (map (fn [x]
-                 (let [i (first x)
-                       k (first i)
-                       v (second i)
-                       f (slurp
-                          (io/resource
-                           (format "%s.lua" (name k))))]
-                   (if (or (empty? v)
-                           (zero? (first
-                                   (script-exists k))))
-                     (let [s (script-load f)]
-                       (swap! *lua* merge {k s})
-                       {k s})
-                     {k v})))
-               m))))
+  (let [m @*lua*]
+    (doseq [k (keys m)]
+      (let [f (slurp
+               (io/resource
+                (format "%s.lua" (name k))))]
+        (when-not (script-exists (k m))
+          (let [s (script-load f)]
+            (swap! *lua* assoc k s)))))
+    @*lua*))
 
 (defn make-scheme []
-  (let [s (:scheme @*lua*)]
-    (in-pool [j ^Jedis (borrow)]
+  (let [s (:scheme (if (empty? (:scheme @*lua*))
+                     (inject-scripts)
+                     @*lua*))]
+    (in-pool [j (borrow)]
              (evalsha s))))
 
 (defn make-table
@@ -119,6 +112,7 @@
           k (keys m)
           nk (count k)
           v (conj (vals m) c t)]
+      (println "#:" t)
       (println "#:" k)
       (println "#:" nk)
       (println "#:" v)
