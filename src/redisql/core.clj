@@ -35,7 +35,7 @@
 
 (def cli-options
   [["-b" "--bnf INPUT" "BNF input/@file"
-    :default (slurp "sample.bnf")
+    ;:default (io/resource "sample.bnf")
     :validate [cli-validate-file-opt
                "BNF file not found"]
     :parse-fn cli-parse-file-arg]
@@ -74,7 +74,7 @@
         (println "EVAL:---------")
         (println input \newline)
         (println "OUT:----------")
-        (parse bnf input))
+        (p/pprint (parse bnf input)))
 
       (:sql options)
       (let [s (:sql options)
