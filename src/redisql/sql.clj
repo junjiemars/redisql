@@ -79,13 +79,12 @@
                      c (:content columns)
                      v (:content values)]
                  (println t)
-                 (println c (type c))
+                 (println c)
                  (println v)
-                 ;(r/make-row t c v)
-                 ))
+                 (r/insert t c v)))
              :create
              (fn [table columns]
-               (let [t (first (:content table))
+               (let [t (:content table)
                      cs (:content columns)]
                  (doseq [c cs]
                    (let [d (column-define (:content c))

@@ -107,9 +107,17 @@
 (defn make-table
   [t c d]
   (when-let [s (make-scheme)]
-    (let [d1 (map (fn [x]
+    (let [t1 (first t)
+          d1 (map (fn [x]
                     (vector (name (first x)) (second x)))
                   (vec d))
-          d2 (conj d1 t)]
+          d2 (conj d1 t1)]
       (evalsha (:table @*lua*) nil d2))))
 
+(defn insert
+  [t cs vs]
+  (let [r1 (map #(vector %1 %2) cs vs)
+        r2 (conj r1 t)]
+    (p/pprint r2)
+    (p/pprint (evalsha (:insert @*lua*) nil r2))
+    ))
