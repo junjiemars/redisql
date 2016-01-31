@@ -1,6 +1,7 @@
 (ns redisql.redis
   (:require [clojure.tools.logging :as log]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.pprint :as p])
   (:import (redis.clients.jedis Jedis
                                 BinaryJedis
                                 JedisPool
@@ -15,7 +16,8 @@
 (def ^:dynamic *lua*
   (atom {:scheme ""
          :table ""
-         :insert ""}))
+         :insert ""
+         :test ""}))
 
 (def ^:dynamic ^JedisPool *pool*
   (atom (JedisPool.)))
@@ -66,9 +68,9 @@
 
 (defn evalsha
   ([^String s] (evalsha s nil))
-  ([^String s ks & argv]
+  ([^String s ks & args]
    (let [n (count ks)
-         v (concat ks argv)]
+         v (flatten (seq (concat ks args)))]
      (in-pool [j (borrow)]
               (.evalsha j s n
                         ^"[Ljava.lang.String;"
@@ -105,18 +107,9 @@
 (defn make-table
   [t c d]
   (when-let [s (make-scheme)]
-    (println "!:" t)
-    (println "!:" c)
-    (println "!:" d)
-    (let [m (apply dissoc d [:NAME])
-          k (keys m)
-          nk (count k)
-          v (conj (vals m) c t)]
-      (println "#:" t)
-      (println "#:" k)
-      (println "#:" nk)
-      (println "#:" v)
-      (let [x (evalsha (:table @*lua*) k v)]
-        (println x)
-        x))))
+    (let [d1 (map (fn [x]
+                    (vector (name (first x)) (second x)))
+                  (vec d))
+          d2 (conj d1 t)]
+      (evalsha (:table @*lua*) nil d2))))
 

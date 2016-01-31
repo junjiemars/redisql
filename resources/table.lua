@@ -1,53 +1,46 @@
 local _t_n_ = '_T_N_'
 local nk = table.getn(KEYS)
 local na = table.getn(ARGV)
+local level = redis.LOG_NOTICE
 
 local def_table = function(t)
-    local _t_t_ = string.format('_T_[%s]_', t)
-    if (0 == redis.call('sismember', _t_n_, _t_t_)) then
-        local s = redis.call('sadd', _t_n_, _t_t_)
-        redis.debug(s)
+    local td = string.format('_T_[%s]_', t)
+    if (0 == redis.call('sismember', _t_n_, td)) then
+        local s = redis.call('sadd', _t_n_, td)
     end 
-    return _t_t_
+    redis.log(level, string.format('def table %s', td))
+    return td
 end
 
-local def_column = function(t, c)
+local def_column = function(t, c, v)
     local cs = t..'C_'
-    local cd = string.format(t..'[%s]_', c)
-    if (1 == redis.call('sadd', cs, c)) then
-        redis.call('hset', cd, 'NAME', c)
-    end
+    local cd = string.format(cs..'[%s]_', v)
+    redis.call('sadd', cs, v)
+    redis.call('hset', cd, c, v)
+    redis.log(level, string.format('def column %s', cd))
     return cd
 end
 
-local make_column = function(t, cn, c, n, v)
-    local d = redis.call('hset', c, n, v)
-    if ('PRIMARY_KEY' == n) then
-        local pk = t..'PK_'
-        if ('1' == v) then
-            redis.call('sadd', pk, cn)
-        else
-            redis.call('srem', pk, cn)
-        end
+local mk_column = function(cd, an, av)
+    if (1 == redis.call('hset', cd, an, av)) then
     end
-    return d
+    redis.log(level, string.format('mk column %s', an))
+    return an
 end
 
--- keys argv:
--- table column_name column_defintions column
-if (nk+2 == na) then
+if (0 < na) then
     local t = def_table(ARGV[1])
-    local cn = ARGV[2]
-    local c = def_column(t, cn)
-    if (0 < nk) then
-        for i=1,nk do
-            local n = KEYS[i]
-            local v = ARGV[i+2]
-            local d = make_column(t, cn, c, n, v)
-            redis.debug(d)
-        end
-        return 1
+    local c = ARGV[2]
+    local v = ARGV[3]
+    local d = def_column(t, c, v)
+
+    for i=4,na,2 do
+        local an = ARGV[i]
+        local av = ARGV[i+1]
+        mk_column(d, an, av)
     end
+
+    return {t, d}
 end
 
-return 0
+return {_t_n_}

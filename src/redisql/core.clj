@@ -82,6 +82,6 @@
         (r/inject-scripts)
         (if n?
           (p/pprint (sql/dry-run s))
-          (sql/run s)))
+          (p/pprint (sql/run s))))
 
       :else (exit 1 summary))))
