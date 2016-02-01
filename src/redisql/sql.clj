@@ -88,7 +88,13 @@
                          cn (:NAME d)]
                      (r/make-table t cn d)))))
              :select
-             (fn [& args] args)})
+             (fn [columns table where]
+               (let [t (:content table)
+                     c (:content columns)
+                     w (:content where)]
+                 (println t)
+                 (println c)
+                 (println w)))})
 
 (defn run
   ([sql & args]
