@@ -1,7 +1,8 @@
 local _t_n_ = '_T_N_'
-local nk = table.getn(KEYS)
-local na = table.getn(ARGV)
+local nk = #KEYS
+local na = #ARGV
 local level = redis.LOG_NOTICE
+local m = 'not enough columns or values'
 
 local table_exists = function(t) 
     return 1 == redis.call('sismember', _t_n_, t)
@@ -26,12 +27,13 @@ end
 if (1 < na) and (0 ~= na % 2) then
     local t = ARGV[1]
     if (not table_exists(t)) then
-        return {00942, string.format('table %s does not exist', t)}
+        m = string.format('table %s does not exist', t)
+        return {00942, m}
     end
 
     local pk = string.format('_T_[%s]_C_PK_', t)
     if (0 == redis.call('scard', pk)) then
-        local m = 'primary key does not exist'
+        m = 'primary key does not exist'
         redis.log(level, m)
         return {02270, m}
     end
@@ -51,14 +53,15 @@ if (1 < na) and (0 ~= na % 2) then
     end
 
     if (0 == cnt) then
-        local m = 'primary key column is missing' 
+        m = string.format('primary key column is missing in table %s', t) 
         redis.log(level, m)
         return {01400, m}
     end
 
     ins(t, pks, row)
 
+    redis.log(level, string.format('insert table %s is ok', t))
     return {1, 'OK'}
 end
 
-return {00947, 'not enough columns or values'}
+return {00947, m}
