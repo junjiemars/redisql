@@ -119,5 +119,5 @@
   (let [r1 (map #(vector %1 %2) cs vs)
         r2 (conj r1 t)]
     (p/pprint r2)
-    (p/pprint (evalsha (:insert @*lua*) nil r2))
+    (p/pprint (evalsha (:test @*lua*) nil r2))
     ))

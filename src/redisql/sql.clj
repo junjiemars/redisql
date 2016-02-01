@@ -10,12 +10,14 @@
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
 (def bnf (i/parser (slurp (io/resource "sql.bnf"))
-                    :output-format :enlive
-                    :auto-whitespace whitespace))
+                   :string-ci true
+                   :output-format :enlive
+                   :auto-whitespace whitespace))
 
 (def dry-bnf (i/parser (slurp (io/resource "sql.bnf"))
-                    :output-format :hiccup
-                    :auto-whitespace whitespace))
+                       :string-ci true
+                       :output-format :hiccup
+                       :auto-whitespace whitespace))
 
 (defn norm
   [s]

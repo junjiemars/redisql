@@ -7,7 +7,7 @@ local table_exists = function(t)
     return 1 == redis.call('sismember', _t_n_, t)
 end
 
-local is_pk = function(pk, c, v)
+local is_pk = function(pk, c)
     return (1 == redis.call('sismember', pk, c))
 end
 
@@ -17,7 +17,6 @@ local ins = function (t, pks, row)
         local pk = string.format('_T_[%s]:[%s]_', t, k)
         local r = string.format('_T_[%s]:[%s]:<%s>_', t, k, v)
         redis.call('sadd', pk, v)
-        redis.debug(unpack(row))
         redis.call('hmset', r, unpack(row))
         n = n+1
     end
@@ -31,8 +30,8 @@ if (1 < na) and (0 ~= na % 2) then
     end
 
     local pk = string.format('_T_[%s]_C_PK_', t)
-    local m = 'primary key does not exist'
     if (0 == redis.call('scard', pk)) then
+        local m = 'primary key does not exist'
         redis.log(level, m)
         return {02270, m}
     end
@@ -43,16 +42,18 @@ if (1 < na) and (0 ~= na % 2) then
     for i=2,na,2 do
         local c = ARGV[i]
         local v = ARGV[i+1]
-        if (is_pk(pk, c, v)) then
+        if (is_pk(pk, c)) then
             pks[c] = v
             cnt = cnt+1
         end
-        row[c] = v;
+        row[#row+1] = c
+        row[#row+1] = v
     end
 
     if (0 == cnt) then
+        local m = 'primary key column is missing' 
         redis.log(level, m)
-        return {02270, m}
+        return {01400, m}
     end
 
     ins(t, pks, row)
