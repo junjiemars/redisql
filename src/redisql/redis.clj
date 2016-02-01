@@ -1,7 +1,8 @@
 (ns redisql.redis
   (:require [clojure.tools.logging :as log]
             [clojure.java.io :as io]
-            [clojure.pprint :as p])
+            [clojure.pprint :as p]
+            [clojure.string :as s])
   (:import (redis.clients.jedis Jedis
                                 BinaryJedis
                                 JedisPool
@@ -35,6 +36,9 @@
 (defn save-*config*
   "Save *config* to file"
   ([f c] (spit f c)))
+
+(defn norm [s]
+  (s/upper-case s))
 
 (defn ^Jedis borrow []
   (.getResource ^JedisPool @*pool*))
@@ -107,17 +111,18 @@
 (defn make-table
   [t c d]
   (when-let [s (make-scheme)]
-    (let [t1 (first t)
+    (let [t1 (norm (first t))
           d1 (map (fn [x]
-                    (vector (name (first x)) (second x)))
+                    (vector (norm (name (first x)))
+                            (norm (second x))))
                   (vec d))
           d2 (conj d1 t1)]
       (evalsha (:table @*lua*) nil d2))))
 
 (defn insert
   [t cs vs]
-  (let [r1 (map #(vector %1 %2) cs vs)
-        r2 (conj r1 t)]
+  (let [r1 (map #(vector (norm %1) %2) cs vs)
+        r2 (conj r1 (norm (first t)))]
     (p/pprint r2)
-    (p/pprint (evalsha (:test @*lua*) nil r2))
+    (p/pprint (evalsha (:insert @*lua*) nil r2))
     ))

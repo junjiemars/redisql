@@ -3,8 +3,7 @@
             [instaparse.core :as i]
             [clojure.java.io :as io]
             ;[taoensso.carmine :as c]
-            [redisql.redis :as r]
-            [clojure.string :as s])
+            [redisql.redis :as r])
   (:gen-class))
 
 (def whitespace (i/parser "whitespace = #'\\s+'"))
@@ -19,13 +18,9 @@
                        :output-format :hiccup
                        :auto-whitespace whitespace))
 
-(defn norm
-  [s]
-  (s/lower-case (s/trim s)))
-
 (defn dry-run
   [sql]
-  (let [p (i/parse dry-bnf (norm sql))
+  (let [p (i/parse dry-bnf sql)
         f? (i/failure? p)]
     (if f?
       (i/get-failure p)
@@ -61,7 +56,7 @@
       (do
           (let [c1 (first x)
               k (:tag c1)
-              v (s/upper-case (first (:content c1)))]
+                v (first (:content c1))]
            (recur (rest x)
                  (cond
                    (= :d_id k)
@@ -91,7 +86,9 @@
                  (doseq [c cs]
                    (let [d (column-define (:content c))
                          cn (:NAME d)]
-                     (r/make-table t cn d)))))})
+                     (r/make-table t cn d)))))
+             :select
+             (fn [& args] args)})
 
 (defn run
   ([sql & args]
