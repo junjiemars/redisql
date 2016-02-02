@@ -28,7 +28,6 @@
 
 (defn field-define
   [field]
-  (log/debug "# field:" field)
   (loop [f1 field
          m {}]
     (if (empty? f1)
@@ -47,7 +46,6 @@
 
 (defn column-define
   [column]
-  (log/debug "# column:" column)
   (loop [x column
          m {:NAME nil :TYPE nil
             :NOT_NULL 0 :PRIMARY_KEY 0 :DEFAULT 0}]
@@ -75,9 +73,6 @@
                (let [t (:content table)
                      c (:content columns)
                      v (:content values)]
-                 (println t)
-                 (println c)
-                 (println v)
                  (r/insert t c v)))
              :create
              (fn [table columns]
@@ -92,9 +87,7 @@
                (let [t (:content table)
                      c (:content columns)
                      w (:content where)]
-                 (println t)
-                 (println c)
-                 (println w)))})
+                 (r/select t c w)))})
 
 (defn run
   ([sql & args]

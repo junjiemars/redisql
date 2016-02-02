@@ -1,6 +1,6 @@
 local _t_n_ = '_T_N_'
-local nk = table.getn(KEYS)
-local na = table.getn(ARGV)
+local nk = #KEYS
+local na = #ARGV
 local level = redis.LOG_NOTICE
 
 local def_table = function(t)

@@ -18,6 +18,7 @@
   (atom {:scheme ""
          :table ""
          :insert ""
+         :select ""
          :test ""}))
 
 (def ^:dynamic ^JedisPool *pool*
@@ -126,3 +127,12 @@
     (p/pprint r2)
     (p/pprint (evalsha (:insert @*lua*) nil r2))
     ))
+
+(defn select
+  [t c w]
+  (let [t1 (norm (first t))
+        c1 (first c)
+        i 0
+        r (evalsha (:select @*lua*) nil t1 i)]
+    (doseq [r1 (rest r)]
+      (p/pprint r1))))

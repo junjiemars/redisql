@@ -14,17 +14,17 @@ if (0 < na) then
         return v
     end
 
-    repeat
-        local c = pk[1]
-        local cs = string.format('_T_[%s]:[%s]_', t, c)
-        local pvs = redis.call('sscan', cs, i)
-        local l = pvs[2]
-        redis.debug(l)
-        for j=1,#l  do
-            local r = string.format('_T_[%s]:[%s]:<%s>_', t, c, l[j])
-            v[#v+1] = redis.call('hgetall', r)
-        end
-    until 0 == i
+    local c = pk[1]
+    local cs = string.format('_T_[%s]:[%s]_', t, c)
+    local pvs = redis.call('sscan', cs, i, 'count', 5)
+    local l = pvs[2]
+    v[#v+1] = pvs[1]
+    redis.debug(l)
+    for j=1,#l  do
+        local r = string.format('_T_[%s]:[%s]:<%s>_', t, c, l[j])
+        v[#v+1] = redis.call('hgetall', r)
+    end
+
     return v
 end
 
