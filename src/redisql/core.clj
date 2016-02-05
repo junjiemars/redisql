@@ -79,9 +79,11 @@
       (:sql options)
       (let [s (:sql options)
             n? (pos? (:dry options))]
-        (r/inject-scripts)
         (if n?
           (p/pprint (sql/dry-run s))
-          (p/pprint (sql/run s))))
+          (do
+            (r/init-pool)
+            (r/inject-scripts)
+            (p/pprint (sql/run s)))))
 
       :else (exit 1 summary))))

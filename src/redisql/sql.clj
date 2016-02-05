@@ -66,7 +66,7 @@
                    (into m (field-define (:content c1)))
                    :esle m)))))))
 
-(def vtable {:s (fn [& args] nil)
+(def vtable {:s (fn [& args] args)
              :insert
              (fn [table columns values]
                (let [t (:content table)
@@ -77,10 +77,9 @@
              (fn [table columns]
                (let [t (:content table)
                      cs (:content columns)]
-                 (doseq [c cs]
-                   (let [d (column-define (:content c))
-                         cn (:NAME d)]
-                     (r/make-table t cn d)))))
+                 {:create (mapv #(let [d (column-define (:content %))]
+                                   (r/make-table t d))
+                                cs)}))
              :select
              (fn [columns table where]
                (let [t (:content table)

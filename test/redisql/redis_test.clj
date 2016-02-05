@@ -3,20 +3,11 @@
             [redisql.redis :refer :all]
             [clojure.java.io :as io]))
 
-(deftest test-*config*
-  (testing "save-*config*"
-    (let [f "redis.conf"
-          c @*config*]
-      (save-*config* f c)
-      (is (true? (.exists (io/as-file f))))))
-
-  (testing "read-*config*"
-    (let [f "redis.conf"]
-      (is (not (nil? (read-*config* f))))
-      (io/delete-file f))))
-
 (deftest test-jedis
   ; Redis should on
+  (testing "init-pool"
+    (is (not (nil? (init-pool)))))
+  
   (testing "ping"
     (is (= "PONG" (ping))))
 
@@ -33,6 +24,8 @@
 
 (deftest test-redis
   ; Redis should on
+  (init-pool)
+  
   (testing "inject-scripts"
     (let [m (inject-scripts)]
       (is (pos? (count (:scheme m))))

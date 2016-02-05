@@ -2,28 +2,35 @@
   (:require [clojure.tools.logging :as log]
             [clojure.java.io :as io]
             [clojure.pprint :as p]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [redisql.util :as u])
   (:import (redis.clients.jedis Jedis
                                 BinaryJedis
                                 JedisPool
-                                JedisPoolConfig)))
+                                JedisPoolConfig)
+           (redis.clients.util Pool)))
 
-(def ^:dynamic *config*
+(def ^:private client-name (str "redisql-" u/pid))
+
+(def ^:dynamic ^:private *config*
   (atom {:pool {}
          :spec {:host "localhost"
-                :port 6379}}))
+                :port 6379
+                :timeout 1000
+                :database 0
+                :auth nil
+                :name client-name}}))
 
-(def ^:dynamic *lua*
+(def ^:dynamic ^:private *lua*
   (atom {:scheme ""
          :table ""
          :insert ""
          :select ""
          :test ""}))
 
-(def ^:dynamic ^JedisPool *pool*
-  (atom (JedisPool.)))
+(def ^:dynamic ^:private ^JedisPool *pool* (atom nil))
 
-(defn read-*config*
+(defn- read-*config*
   [f]
   (log/info "# loading config from file:" f)
   (try
@@ -32,14 +39,46 @@
     (catch RuntimeException e
       (log/error e))))
 
-(defn save-*config*
-  ([f c] (spit f c)))
+(defn- save-*config*
+  ([f c]
+   (try
+     (spit f c)
+     (catch Exception e
+       (log/error e)))))
 
-(defn norm [s]
+(defn- norm [s]
   (s/upper-case s))
 
-(defn ^Jedis borrow []
+(defn- int=
+  [x d]
+  (if nil d (int x)))
+
+(defn- ^Jedis borrow []
   (.getResource ^JedisPool @*pool*))
+
+(defn- as-pool
+  [{:keys [pool spec] :as c}]
+  (JedisPool. (JedisPoolConfig.)
+              (:host spec)
+              (int= (:port spec) 6379)
+              (int= (:timeout spec) 1000)
+              (:auth spec)
+              (int= (:database spec) 0)
+              client-name))
+
+(defn close-pool []
+  (when-let [^Pool p @*pool*]
+    (when-not (.isClosed p)
+      (.close p))))
+
+(defn init-pool
+  ([]
+   (close-pool)
+   (reset! *pool* (as-pool @*config*)))
+  ([f]
+   (close-pool)
+   (when-let [c (read-*config* f)]
+     (reset! *pool* (as-pool c)))))
 
 (defmacro in-pool
   [bindings & body]
@@ -107,7 +146,7 @@
              (evalsha s))))
 
 (defn make-table
-  [t c d]
+  [t d]
   (when-let [s (make-scheme)]
     (let [t1 (norm (first t))
           d1 (map (fn [x]
@@ -131,5 +170,6 @@
         c1 (first c)
         i 0
         r (evalsha (:select @*lua*) nil t1 i)]
+    (p/pprint (first r))
     (doseq [r1 (rest r)]
       (p/pprint r1))))
