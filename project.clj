@@ -9,7 +9,8 @@
                  [ch.qos.logback/logback-classic "1.1.1"]
                  [instaparse "1.4.1"]
                  [redis.clients/jedis "2.8.0"]]
-  :main redisql.core
+  :main ^:skip-aot redisql.core
+  :target-path "target/%s"
   :profiles {:dev {:jvm-ops ["-Droot-level=DEBUG"]
                    :global-vars {*warn-on-reflection* true}
                    :javac-options ["-g"]}

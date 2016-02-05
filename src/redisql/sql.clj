@@ -3,8 +3,7 @@
             [instaparse.core :as i]
             [clojure.java.io :as io]
             ;[taoensso.carmine :as c]
-            [redisql.redis :as r])
-  (:gen-class))
+            [redisql.redis :as r]))
 
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 

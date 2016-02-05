@@ -6,8 +6,7 @@
   (:import (redis.clients.jedis Jedis
                                 BinaryJedis
                                 JedisPool
-                                JedisPoolConfig))
-  (:gen-class))
+                                JedisPoolConfig)))
 
 (def ^:dynamic *config*
   (atom {:pool {}
