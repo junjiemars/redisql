@@ -24,7 +24,6 @@
   (atom (JedisPool.)))
 
 (defn read-*config*
-  "Read config from file and store it in *config*"
   [f]
   (log/info "# loading config from file:" f)
   (try
@@ -34,7 +33,6 @@
       (log/error e))))
 
 (defn save-*config*
-  "Save *config* to file"
   ([f c] (spit f c)))
 
 (defn norm [s]
