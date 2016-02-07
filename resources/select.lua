@@ -30,18 +30,18 @@ end
 
 local t = ARGV[1]
 if (not table_exists(t)) then
-    return {-00942, string.format('table does not exist', t)}
+    return {00942, string.format('table does not exist', t)}
 end
 
 local i = to_int(ARGV[2])
 if (not i) then
-    return {-01001, string.format('invalid cursor [%s]', ARGV[2])}
+    return {01001, string.format('invalid cursor [%s]', ARGV[2])}
 end
 
 local pk = pk_exists(t)
 if (nil == pk) then
     redis.log(level, string.format('no primary keys in table %s', t))
-    return {-02270, 'primary key does not exist'}
+    return {02270, 'primary key does not exist'}
 end
 
 local c = pk[1]

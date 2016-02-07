@@ -29,31 +29,34 @@ local def_pk = function(t, v, an, av)
         else
             redis.call('srem', pk, v)
         end
-        redis.log(level, string.format('def pk %s=%s', v, av))
+        redis.log(level, string.format('def pk %s:%s=%s', pk, v, av))
     end
     return v
 end
 
-local mk_column = function(cd, an, av)
+local def_attribute = function(cd, an, av)
     redis.call('hset', cd, an, av)
-    redis.log(level, string.format('mk column %s', an))
+    redis.log(level, string.format('def attribute %s:%s=%s', cd, an, av))
     return an
 end
 
-if (0 < na) then
-    local t = def_table(ARGV[1])
-    local c = ARGV[2]
-    local v = ARGV[3]
-    local d = def_column(t, c, v)
+if (3 > na) or (0 == na % 2) then
+    return {-1, 'should provides table, column, value arguments(>=3)'}
+end
 
+local t = def_table(ARGV[1])
+local c = ARGV[2]
+local v = ARGV[3]
+local d = def_column(t, c, v)
+
+if (4 <= na) then
     for i=4,na,2 do
         local an = ARGV[i]
         local av = ARGV[i+1]
         def_pk(t, v, an, av)
-        mk_column(d, an, av)
+        def_attribute(d, an, av)
     end
-
-    return {t, d}
 end
 
-return {_t_n_}
+return {0, t, d}
+

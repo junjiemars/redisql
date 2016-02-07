@@ -2,7 +2,6 @@
   (:require [clojure.tools.logging :as log]
             [instaparse.core :as i]
             [clojure.java.io :as io]
-            ;[taoensso.carmine :as c]
             [redisql.redis :as r]))
 
 (def whitespace (i/parser "whitespace = #'\\s+'"))
@@ -16,14 +15,6 @@
                        :string-ci true
                        :output-format :hiccup
                        :auto-whitespace whitespace))
-
-(defn dry-run
-  [sql]
-  (let [p (i/parse dry-bnf sql)
-        f? (i/failure? p)]
-    (if f?
-      (i/get-failure p)
-      p)))
 
 (defn field-define
   [field]
@@ -67,32 +58,37 @@
                    :esle m)))))))
 
 (def vtable {:s (fn [& args] args)
+             :create
+             (fn [table columns]
+               (let [t (:content table)
+                     cs (:content columns)]
+                 {:create {:table (first t)
+                           :column (mapv
+                                    #(column-define (:content %))
+                                    cs)}}))
+             
              :insert
              (fn [table columns values]
                (let [t (:content table)
                      c (:content columns)
                      v (:content values)]
-                 (r/insert t c v)))
-             :create
-             (fn [table columns]
-               (let [t (:content table)
-                     cs (:content columns)]
-                 {:create (mapv #(let [d (column-define (:content %))]
-                                   (r/make-table t d))
-                                cs)}))
+                 {:insert {:table (first t)
+                           :column c
+                           :value v}}))
+             
              :select
              (fn [columns table where]
                (let [t (:content table)
                      c (:content columns)
                      w (:content where)]
-                 (r/select t c w)))})
+                 {:select {:table t :column c :where w}}))})
 
-(defn run
-  ([sql & args]
-   (let [ast (i/parse bnf sql)
-         f? (i/failure? ast)
-         n (seq args)]
+(defn parse
+  ([sql dry?]
+   (let [ast (i/parse (if dry? dry-bnf bnf) sql)
+         f? (i/failure? ast)]
      (if f?
        (i/get-failure ast)
-       (i/transform vtable ast)))))
-
+       (if dry?
+         ast
+         (i/transform vtable ast))))))

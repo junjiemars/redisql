@@ -51,7 +51,7 @@
 
 (defn- int=
   [x d]
-  (if nil d (int x)))
+  (if (nil? x) d (int x)))
 
 (defn- ^Jedis borrow []
   (.getResource ^JedisPool @*pool*))
@@ -148,28 +148,28 @@
 (defn make-table
   [t d]
   (when-let [s (make-scheme)]
-    (let [t1 (norm (first t))
-          d1 (map (fn [x]
-                    (vector (norm (name (first x)))
-                            (norm (second x))))
-                  (vec d))
-          d2 (conj d1 t1)]
-      (evalsha (:table @*lua*) nil d2))))
+    (let [t1 (norm t)]
+      (loop [i d
+             v []]
+        (if (empty? i)
+          v
+          (let [d1 (map (fn [x]
+                          (vector (norm (name (first x)))
+                                  (norm (second x))))
+                        (first i))
+                d2 (conj d1 t1)]
+            (recur (rest i)
+                   (conj v (evalsha (:table @*lua*) nil d2)))))))))
 
 (defn insert
-  [t cs vs]
-  (let [r1 (map #(vector (norm %1) %2) cs vs)
-        r2 (conj r1 (norm (first t)))]
-    (p/pprint r2)
-    (p/pprint (evalsha (:insert @*lua*) nil r2))
-    ))
+  [t c v]
+  (let [r1 (map #(vector (norm %1) %2) c v)
+        r2 (conj r1 (norm t))]
+    (evalsha (:insert @*lua*) nil r2)))
 
 (defn select
-  [t c w]
+  [t c w i]
   (let [t1 (norm (first t))
-        c1 (first c)
-        i 0
-        r (evalsha (:select @*lua*) nil t1 i)]
-    (p/pprint (first r))
-    (doseq [r1 (rest r)]
-      (p/pprint r1))))
+        c1 (first c)]
+    ;; needs where optimizer
+    (evalsha (:select @*lua*) nil t1 i)))

@@ -5,7 +5,8 @@
             [instaparse.core :as i]
             [redisql.sql :as sql]
             [redisql.redis :as r]
-            [clojure.pprint :as p])
+            [clojure.pprint :as p]
+            [redisql.redis :as r])
   (:gen-class))
 
 (defn parse
@@ -57,6 +58,26 @@
     :assoc-fn (fn [m k _] (update-in m [k] inc))]
    ["-h" "--help"]])
 
+(defn run
+  [ast]
+  (r/init-pool)
+  (r/inject-scripts)
+  (let [ks (keys ast)
+        k (first ks)
+        v (k ast)]
+    (cond
+      (= :create k)
+      (r/make-table (:table v) (:column v))
+      
+      (= :insert k)
+      (r/insert (:table v) (:column v) (:value v))
+      
+      (= :select k)
+      (let [f (fn [c]
+                (r/select (:table v) (:column v) (:where v) c))]
+        ;; needs iterator
+        (rest (f 0))))))
+
 (defn -main
   "Evalute input with BNF then output"
   [& args]
@@ -80,10 +101,7 @@
       (let [s (:sql options)
             n? (pos? (:dry options))]
         (if n?
-          (p/pprint (sql/dry-run s))
-          (do
-            (r/init-pool)
-            (r/inject-scripts)
-            (p/pprint (sql/run s)))))
+          (time (p/pprint (sql/parse s true)))
+          (time (p/pprint (run (first (sql/parse s false)))))))
 
       :else (exit 1 summary))))
