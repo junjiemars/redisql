@@ -6,7 +6,9 @@
             [redisql.sql :as sql]
             [redisql.redis :as r]
             [clojure.pprint :as p]
-            [redisql.redis :as r])
+            [redisql.redis :as r]
+            [redisql.util :as u]
+            [redisql.repl :as repl])
   (:gen-class))
 
 (defn parse
@@ -16,11 +18,6 @@
     (if (i/failure? out)
       (i/get-failure out)
       out)))
-
-(defn exit
-  [status msg]
-  (println msg)
-  (System/exit status))
 
 (defn cli-validate-file-opt
   [o]
@@ -52,31 +49,15 @@
     :id :dry
     :default 0
     :assoc-fn (fn [m k _] (update-in m [k] inc))]
+   ["-i" "--repl" "REPL mode"
+    :id :repl
+    :default 0
+    :assoc-fn (fn [m k _] (update-in m [k] inc))]
    ["-v" nil "Verbosity level"
     :id :verbosity
     :default 0
     :assoc-fn (fn [m k _] (update-in m [k] inc))]
    ["-h" "--help"]])
-
-(defn run
-  [ast]
-  (r/init-pool)
-  (r/inject-scripts)
-  (let [ks (keys ast)
-        k (first ks)
-        v (k ast)]
-    (cond
-      (= :create k)
-      (r/make-table (:table v) (:column v))
-      
-      (= :insert k)
-      (r/insert (:table v) (:column v) (:value v))
-      
-      (= :select k)
-      (let [f (fn [c]
-                (r/select (:table v) (:column v) (:where v) c))]
-        ;; needs iterator
-        (rest (f 0))))))
 
 (defn -main
   "Evalute input with BNF then output"
@@ -84,8 +65,8 @@
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options)]
     (cond
-      (:help options) (exit 0 summary)
-      errors (exit 1 (str "! error: "
+      (:help options) (u/exit 0 summary)
+      errors (u/exit 1 (str "! error: "
                           args \newline errors))
       (:eval options)
       (let [input (:eval options)
@@ -99,9 +80,20 @@
 
       (:sql options)
       (let [s (:sql options)
-            n? (pos? (:dry options))]
-        (if n?
-          (time (p/pprint (sql/parse s true)))
-          (time (p/pprint (run (first (sql/parse s false)))))))
+            n? (pos? (:dry options))
+            p1 (sql/parse s n?)]
+        (r/init-pool)
+        (r/inject-scripts)
+        (time (p/pprint
+               (if n?
+                 p1
+                 (repl/run-sql (first p1))))))
 
-      :else (exit 1 summary))))
+      (:repl options)
+      (let [n? (pos? (:dry options))]
+        (u/on-exit (fn [] (println "Bye!")))
+        (r/init-pool)
+        (r/inject-scripts)
+        (repl/run n?))
+
+      :else (u/exit 1 summary))))
