@@ -4,12 +4,12 @@
             [redisql.redis :as r]))
 
 (defn end-input? [i]
-  (let [lb (count (re-find #"\[" i))
-        rb (count (re-find #"]" i))
-        rp (count (re-find #"\(" i))
-        lp (count (re-find #"\)" i))
-        ]
-    (and (= lp rp) (= lb rb))))
+  (let [lb (count (re-seq #"\[" i))
+        rb (count (re-seq #"]" i))
+        rp (count (re-seq #"\(" i))
+        lp (count (re-seq #"\)" i))
+        sq (count (re-seq #"'" i))]
+    (and (= lp rp) (= lb rb) (even? sq))))
 
 (defn input [i]
   (let [n (str i (read-line))]

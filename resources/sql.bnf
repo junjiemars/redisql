@@ -1,15 +1,17 @@
-s = (insert|create|select) <';'>?
+s = (insert|create|select) <';'>
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column
-select = <k_select> s_l_column <k_from> n_table where
-where = (''|where)
+select = <k_select> s_l_column <k_from> n_table where?
+where = <k_where> b_expr
 
 l_column = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
 l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
 l_d_column = <l_paren> (d_column | d_column (<comma> d_column)*)+ <r_paren>
 s_l_column = ('*'|s_column)
 <s_column> = (n_column | n_column (<comma> n_column)*)+
+b_expr = b_term | (b_term b_op b_expr)
+b_term = (d_id | n_value) comp_op n_value
 
 d_column = d_id d_type d_col_constraint
 d_id = id
@@ -28,10 +30,13 @@ k_not_null = <#"not\s+null">
 k_primary_key = <#"primary\s+key">
 k_select = 'select'
 k_from = 'from'
+k_where = 'where'
 
 <n_column> = id
 <n_value> = string | number
 n_table = id
+comp_op = '=' | '<>' | '<' | '<=' | '>' | '>='
+b_op = 'or' | 'and'
 
 <id> = #"[a-zA-Z][_a-zA-Z0-9]*"
 space = #"\s"
@@ -42,3 +47,4 @@ r_paren = ')'
 <string> = <"'"> #"[\w\p{L}]+" <"'">
 <number> = #"([+-])?[0-9]+(\.?[0-9]*)"
 <digit> = #"[0-9]"
+

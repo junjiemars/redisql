@@ -92,8 +92,9 @@
       (:repl options)
       (let [n? (pos? (:dry options))]
         (u/on-exit (fn [] (println "Bye!")))
-        (r/init-pool)
-        (r/inject-scripts)
+        (when-not n?
+          (r/init-pool)
+          (r/inject-scripts))
         (repl/run n?))
 
       :else (u/exit 1 summary))))
