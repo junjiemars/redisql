@@ -25,6 +25,7 @@
          :table ""
          :insert ""
          :select ""
+         :describe ""
          :test ""}))
 
 (def ^:dynamic ^:private ^JedisPool *pool* (atom nil))
@@ -180,3 +181,11 @@
         c1 (first c)]
     ;; needs where optimizer
     (evalsha (:select @*lua*) nil t1 i)))
+
+(defn describe
+  ([t]
+   (let [l (:describe @*lua*)]
+     (if (nil? t)
+       (evalsha l nil)
+       (let [t1 (norm (first t))]
+         (evalsha l nil t1))))))

@@ -31,4 +31,8 @@
              (let [f (fn [c]
                        (r/select (:table v) (:column v) (:where v) c))
                    l (f cursor)]
-               (rest (f cursor))))))))))
+               (rest (f cursor)))
+
+             :describe
+             (let [s (r/describe (:table v))]
+               s))))))))

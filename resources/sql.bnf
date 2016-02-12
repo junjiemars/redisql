@@ -1,9 +1,10 @@
-s = (insert|create|select) <';'>
+s = (insert|create|select|describe) <';'>
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column
 select = <k_select> s_l_column <k_from> n_table where
 where = (<k_where> b_expr)?
+describe = (<k_describe>) | (<k_describe> n_table)
 
 l_column = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
 l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
@@ -31,6 +32,7 @@ k_primary_key = <#"primary\s+key">
 k_select = 'select'
 k_from = 'from'
 k_where = 'where'
+k_describe = 'describe'
 
 <n_column> = id
 <n_value> = string | number

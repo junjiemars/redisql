@@ -44,7 +44,7 @@
     :validate [cli-validate-file-opt
                "SQL file not found"]
     :parse-fn cli-parse-file-arg]
-   ["-n" "--dry-run" "Show what would have been parsed"
+   ["-n" "--dry-run" "SQL show what would have been parsed"
     :id :dry
     :default 0
     :assoc-fn (fn [m k _] (update-in m [k] inc))]

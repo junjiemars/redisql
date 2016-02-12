@@ -80,7 +80,14 @@
                (let [t (:content table)
                      c (:content columns)
                      w (:content where)]
-                 {:select {:table t :column c :where w}}))})
+                 {:select {:table t :column c :where w}}))
+
+             :describe
+             (fn [& table]
+               (let [t (if (nil? table)
+                         nil
+                         (:content (first table)))]
+                 {:describe {:table t}}))})
 
 (defn parse
   ([sql dry?]
