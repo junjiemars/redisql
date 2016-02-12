@@ -2,18 +2,17 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
-            [instaparse.core :as i]
-            [redisql.sql :as sql]
-            [redisql.redis :as r]
             [clojure.pprint :as p]
-            [redisql.redis :as r]
             [redisql.util :as u]
-            [redisql.repl :as repl])
+            [redisql.repl :as repl]
+            [redisql.bridge :as b]
+            [instaparse.core :as i]
+            [redisql.sql :as s])
   (:gen-class))
 
 (defn parse
   [bnf input]
-  (let [p (i/parser bnf :auto-whitespace sql/whitespace)
+  (let [p (i/parser bnf :auto-whitespace s/whitespace)
         out (i/parse p input)]
     (if (i/failure? out)
       (i/get-failure out)
@@ -80,21 +79,12 @@
 
       (:sql options)
       (let [s (:sql options)
-            n? (pos? (:dry options))
-            p1 (sql/parse s n?)]
-        (r/init-pool)
-        (r/inject-scripts)
-        (time (p/pprint
-               (if n?
-                 p1
-                 (repl/run-sql (first p1))))))
+            n? (pos? (:dry options))]
+        (time (p/pprint (b/cross s n?))))
 
       (:repl options)
       (let [n? (pos? (:dry options))]
         (u/on-exit (fn [] (println "Bye!")))
-        (when-not n?
-          (r/init-pool)
-          (r/inject-scripts))
         (repl/run n?))
 
       :else (u/exit 1 summary))))

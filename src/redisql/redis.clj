@@ -1,7 +1,6 @@
 (ns redisql.redis
   (:require [clojure.tools.logging :as log]
             [clojure.java.io :as io]
-            [clojure.pprint :as p]
             [clojure.string :as s]
             [redisql.util :as u])
   (:import (redis.clients.jedis Jedis
@@ -92,6 +91,12 @@
          (in-pool ~(subvec bindings 2) ~@body)
          (finally
            (. ~(bindings 0) close))))))
+
+(defn scripted? []
+  (not (empty? (:scheme @*lua*))))
+
+(defn pooled? []
+  (not (nil? @*pool*)))
 
 (defn ping []
   (in-pool [j (borrow)]

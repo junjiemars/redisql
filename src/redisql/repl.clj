@@ -1,54 +1,41 @@
 (ns redisql.repl
   (:require [redisql.sql :as sql]
             [clojure.pprint :as p]
-            [redisql.redis :as r]))
+            [redisql.redis :as r]
+            [redisql.bridge :as b]
+            [redisql.util :as u]))
 
-(defn end-input? [i]
-  (let [lb (count (re-seq #"\[" i))
-        rb (count (re-seq #"]" i))
-        rp (count (re-seq #"\(" i))
-        lp (count (re-seq #"\)" i))
-        sq (count (re-seq #"'" i))]
-    (and (= lp rp) (= lb rb) (even? sq))))
+(def normal-prompt "redisql> ")
+(def error-prompt "redisql# ")
+(def indent-prompt "..redisql> ")
 
-(defn input [i]
-  (let [n (str i (read-line))]
-    (if (end-input? n)
-      n
+(defn input [p]
+  (let [c (read-line)
+        n (str p c)]
+    (cond
+      (nil? c) (u/exit 0 "quit")
+      (empty? n) (do
+                   (print normal-prompt)
+                   (flush)
+                   (recur n))
+      (and (not (empty? n)) (= \; (last n))) n
+
+      :else
       (do
-        (print "  ..redisql> ")
+        (print indent-prompt)
         (flush)
         (recur (str n "\n"))))))
 
-(defn run-sql
-  [ast]
-  (let [ks (keys ast)
-        k (first ks)
-        v (k ast)]
-    (condp = k
-      :create 
-      (r/make-table (:table v) (:column v))
-      :insert 
-      (r/insert (:table v) (:column v) (:value v))
-      :select
-      (let [f (fn [c]
-                (r/select (:table v) (:column v) (:where v) c))]
-        ;; needs iterator
-        (rest (f 0))))))
-
 (defn run [dry?]
   (do
-    (print "redisql> ")
+    (print normal-prompt)
     (flush))
   (let [i (input "")]
     (when-not (or (= i "quit")
                   (empty? i))
      (try
-       (let [s (sql/parse i dry?)]
-         (p/pprint
-          (if dry?
-            s
-            (run-sql (first s)))))
+       (let [s (b/cross i dry?)]
+         (p/pprint s))
        (catch Exception e
-         (println "!redisql> " e)))
+         (println error-prompt e)))
      (recur dry?))))

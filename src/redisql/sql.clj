@@ -1,8 +1,7 @@
 (ns redisql.sql
   (:require [clojure.tools.logging :as log]
             [instaparse.core :as i]
-            [clojure.java.io :as io]
-            [redisql.redis :as r]))
+            [clojure.java.io :as io]))
 
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
@@ -85,11 +84,12 @@
 
 (defn parse
   ([sql dry?]
-   (let [ast (i/parse (if dry? dry-bnf bnf) sql)
+   (let [b (if dry? dry-bnf bnf)
+         ast (i/parse b sql)
          f? (i/failure? ast)]
      (if f?
-       (i/get-failure ast)
-       (if dry?
-         ast
-         (i/transform vtable ast))))))
-
+       {:failure (i/get-failure ast)
+        :ast nil}
+       (do
+         {:failure nil
+          :ast (if dry? ast (i/transform vtable ast))})))))

@@ -2,8 +2,8 @@ s = (insert|create|select) <';'>
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column
-select = <k_select> s_l_column <k_from> n_table where?
-where = <k_where> b_expr
+select = <k_select> s_l_column <k_from> n_table where
+where = (<k_where> b_expr)?
 
 l_column = <l_paren> (n_column | n_column (<comma> n_column)*)+  <r_paren>
 l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
