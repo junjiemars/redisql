@@ -32,7 +32,7 @@
       (is (pos? (count (:table m))))))
 
   (testing "make-scheme"
-    (let [v ["_T_" "OK"]]
+    (let [v [0 "create redisql's scheme ok"]]
       (is (= v (make-scheme)))))
 
   (comment

@@ -40,7 +40,7 @@
     :validate [cli-validate-file-opt
                "Eval file not found"]
     :parse-fn cli-parse-file-arg]
-   ["-s" "--sql SQL" " SQL input/@file"
+   ["-s" "--sql SQL" "SQL input/@file"
     :validate [cli-validate-file-opt
                "SQL file not found"]
     :parse-fn cli-parse-file-arg]
@@ -48,6 +48,10 @@
     :id :dry
     :default 0
     :assoc-fn (fn [m k _] (update-in m [k] inc))]
+   ["-c" "--conf Redis" "Redis client conf file"
+    :validate [cli-validate-file-opt
+               "Redis client conf not found"]
+    :parse-fn cli-parse-file-arg]
    ["-i" "--repl" "REPL mode"
     :id :repl
     :default 0
@@ -79,12 +83,14 @@
 
       (:sql options)
       (let [s (:sql options)
-            n? (pos? (:dry options))]
-        (time (p/pprint (b/cross s n?))))
+            n? (pos? (:dry options))
+            c (:conf options)]
+        (time (p/pprint (b/cross s n? c))))
 
       (:repl options)
-      (let [n? (pos? (:dry options))]
+      (let [n? (pos? (:dry options))
+            c (:conf options)]
         (u/on-exit (fn [] (println "Bye!")))
-        (repl/run n?))
+        (repl/run n? c))
 
       :else (u/exit 1 summary))))

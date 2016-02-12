@@ -31,9 +31,8 @@
 
 (defn- read-*config*
   [f]
-  (log/info "# loading config from file:" f)
   (try
-    (let [c (read-string (slurp f))]
+    (let [c (read-string f)]
       (swap! *config* merge c))
     (catch RuntimeException e
       (log/error e))))
@@ -75,9 +74,12 @@
    (close-pool)
    (reset! *pool* (as-pool @*config*)))
   ([f]
-   (close-pool)
-   (when-let [c (read-*config* f)]
-     (reset! *pool* (as-pool c)))))
+   (if (empty? f)
+     (init-pool)
+     (do
+       (close-pool)
+       (when-let [c (read-*config* f)]
+         (reset! *pool* (as-pool c)))))))
 
 (defmacro in-pool
   [bindings & body]

@@ -26,7 +26,7 @@
         (flush)
         (recur (str n "\n"))))))
 
-(defn run [dry?]
+(defn run [dry? conf]
   (do
     (print normal-prompt)
     (flush))
@@ -34,8 +34,8 @@
     (when-not (or (= i "quit")
                   (empty? i))
      (try
-       (let [s (b/cross i dry?)]
+       (let [s (b/cross i dry? conf)]
          (p/pprint s))
        (catch Exception e
          (println error-prompt e)))
-     (recur dry?))))
+     (recur dry? conf))))
