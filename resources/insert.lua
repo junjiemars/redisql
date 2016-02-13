@@ -1,5 +1,4 @@
 local _t_n_ = '_T_N_'
-local nk = #KEYS
 local na = #ARGV
 local level = redis.LOG_NOTICE
 local m = 'not enough columns or values'
@@ -26,6 +25,7 @@ end
 
 if (3 > na) or (0 == na % 2) then
     m = 'not enough columns or values(>=3)'
+    redis.log(level, m)
     return {00947, m}
 end
 

@@ -26,6 +26,7 @@
          :insert ""
          :select ""
          :describe ""
+         :columns ""
          :test ""}))
 
 (def ^:dynamic ^:private ^JedisPool *pool* (atom nil))
@@ -189,3 +190,7 @@
        (evalsha l nil)
        (let [t1 (norm (first t))]
          (evalsha l nil t1))))))
+
+(defn columns
+  [t]
+  (evalsha (:columns @*lua*) nil (norm t)))

@@ -1,5 +1,4 @@
 local _t_n_ = '_T_N_'
-local nk = #KEYS
 local na = #ARGV
 local level = redis.LOG_NOTICE
 
@@ -41,7 +40,9 @@ local def_attribute = function(cd, an, av)
 end
 
 if (3 > na) or (0 == na % 2) then
-    return {-1, 'should provides table, column, value arguments(>=3)'}
+    local m = 'should provides table, column, value arguments(>=3)'
+    redis.log(level, m)
+    return {-1, m}
 end
 
 local t = def_table(ARGV[1])
