@@ -168,7 +168,10 @@
                         (first i))
                 d2 (conj d1 t1)]
             (recur (rest i)
-                   (conj v (evalsha (:table @*lua*) nil d2)))))))))
+                   (conj v
+                         (evalsha (:table @*lua*)
+                                  nil
+                                  d2)))))))))
 
 (defn insert
   [t c v]
@@ -178,7 +181,7 @@
 
 (defn select
   [t c w i]
-  (let [t1 (norm (first t))
+  (let [t1 (norm t)
         c1 (first c)]
     ;; needs where optimizer
     (evalsha (:select @*lua*) nil t1 i)))
@@ -188,7 +191,7 @@
    (let [l (:describe @*lua*)]
      (if (nil? t)
        (evalsha l nil)
-       (let [t1 (norm (first t))]
+       (let [t1 (norm t)]
          (evalsha l nil t1))))))
 
 (defn columns

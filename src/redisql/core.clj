@@ -44,7 +44,7 @@
     :validate [cli-validate-file-opt
                "SQL file not found"]
     :parse-fn cli-parse-file-arg]
-   ["-n" "--dry-run" "SQL show what would have been parsed"
+   ["-d" "--dry-run" "SQL's AST only: -d, AST transformed: -dd"
     :id :dry
     :default 0
     :assoc-fn (fn [m k _] (update-in m [k] inc))]
@@ -83,14 +83,14 @@
 
       (:sql options)
       (let [s (:sql options)
-            n? (pos? (:dry options))
+            d (:dry options)
             c (:conf options)]
-        (time (p/pprint (b/cross s n? c))))
+        (time (p/pprint (b/cross s d c))))
 
       (:repl options)
-      (let [n? (pos? (:dry options))
+      (let [d (:dry options)
             c (:conf options)]
         (u/on-exit (fn [] (println "Bye!")))
-        (repl/run n? c))
+        (repl/run d c))
 
       :else (u/exit 1 summary))))

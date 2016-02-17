@@ -6,11 +6,6 @@
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
 (def bnf (i/parser (slurp (io/resource "sql.bnf"))
-                   :string-ci true
-                   :output-format :enlive
-                   :auto-whitespace whitespace))
-
-(def dry-bnf (i/parser (slurp (io/resource "sql.bnf"))
                        :string-ci true
                        :output-format :hiccup
                        :auto-whitespace whitespace))
@@ -22,7 +17,7 @@
     (if (empty? f1)
       m
       (let [h (first f1)
-            k (:tag h)]
+            k (first h)]
         (recur (rest f1)
                (cond
                  (= :k_not_null k)
@@ -30,7 +25,7 @@
                  (= :k_primary_key k)
                  (into m {:PRIMARY_KEY 1})
                  (= :d_default k)
-                 (into m {:DEFAULT (first (:content h))})
+                 (into m {:DEFAULT (first (rest h))})
                  :else m))))))
 
 (defn column-define
@@ -42,8 +37,8 @@
       m
       (do
           (let [c1 (first x)
-              k (:tag c1)
-                v (first (:content c1))]
+              k (first c1)
+                v (first (rest c1))]
            (recur (rest x)
                  (cond
                    (= :d_id k)
@@ -53,45 +48,50 @@
                    (= :d_string k)
                    (into m {:TYPE "STRING"})
                    (= :d_col_constraint k)
-                   (into m (field-define (:content c1)))
+                   (into m (field-define (rest c1)))
                    :esle m)))))))
+
+
 
 (def vtable {:s (fn [& args] args)
              :create
              (fn [table columns]
-               (let [t (:content table)
-                     cs (:content columns)]
+               (let [t (rest table)
+                     cs (rest columns)]
                  {:create {:table (first t)
-                           :column (mapv
-                                    #(column-define (:content %))
-                                    cs)}}))
+                           :column
+                           (mapv
+                            #(column-define (rest %))
+                            cs)}}))
              
              :insert
              (fn [table columns values]
-               (let [t (:content table)
-                     c (:content columns)
-                     v (:content values)]
-                 {:insert {:table (first t)
+               (let [t (second table)
+                     c (rest columns)
+                     v (rest values)]
+                 {:insert {:table t
                            :column c
                            :value v}}))
              
              :select
              (fn [columns table where]
-               (let [t (:content table)
-                     c (:content columns)
-                     w (:content where)]
-                 {:select {:table t :column c :where w}}))
+               (let [t (rest table)
+                     c (rest columns)
+                     w (rest where)]
+                 {:select {:table (first t)
+                           :column c
+                           :where w}}))
 
              :describe
              (fn [& table]
                (let [t (if (nil? table)
                          nil
-                         (:content (first table)))]
+                         (second (first table)))]
                  {:describe {:table t}}))})
 
 (defn parse
   ([sql dry?]
-   (let [b (if dry? dry-bnf bnf)
+   (let [b bnf
          ast (i/parse b sql)
          f? (i/failure? ast)]
      (if f?
@@ -99,4 +99,6 @@
         :ast nil}
        (do
          {:failure nil
-          :ast (if dry? ast (i/transform vtable ast))})))))
+          :ast (if dry?
+                 ast
+                 (i/transform vtable ast))})))))
