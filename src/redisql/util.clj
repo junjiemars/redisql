@@ -11,9 +11,11 @@
   (.getCanonicalHostName (java.net.InetAddress/getLocalHost)))
 
 (defn exit
-  [status msg]
-  (println msg)
-  (System/exit status))
+  ([status] (exit status nil))
+  ([status msg]
+   (when-not (empty? msg)
+     (println msg))
+   (System/exit status)))
 
 (defn spawn
   ([^Runnable f] (Thread. f))

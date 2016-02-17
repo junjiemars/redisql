@@ -8,31 +8,31 @@
 (def normal-prompt "redisql> ")
 (def error-prompt "redisql# ")
 (def indent-prompt "..redisql> ")
+(def quit-prompt "quit")
 
 (defn input [p]
   (let [c (read-line)
         n (str p c)]
     (cond
-      (nil? c) (u/exit 0 "quit")
+      (nil? c) (u/exit 0 quit-prompt)
       (empty? n) (do
                    (print normal-prompt)
                    (flush)
                    (recur n))
+      (= quit-prompt n) (u/exit 0)
       (and (not (empty? n)) (= \; (last n))) n
-
       :else
       (do
         (print indent-prompt)
         (flush)
-        (recur (str n "\n"))))))
+        (recur (str n \newline))))))
 
 (defn run [dry conf]
   (do
     (print normal-prompt)
     (flush))
   (let [i (input "")]
-    (when-not (or (= i "quit")
-                  (empty? i))
+    (when-not (empty? i)
      (try
        (let [s (b/cross i dry conf)]
          (p/pprint s))
