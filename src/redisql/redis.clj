@@ -100,7 +100,8 @@
   (not (empty? (:scheme @*lua*))))
 
 (defn pooled? []
-  (not (nil? @*pool*)))
+  (when-let [p @*pool*]
+    (not (nil? p))))
 
 (defn ping []
   (in-pool [j (borrow)]

@@ -1,28 +1,47 @@
 # redisql
-Play Redis as a rational database via SQL
+Play Redis as a rational store via SQL
 
 ## Rules of Design
-* 1st Rule: Redis is just Redis
-* 2nd Rule: See 1st Rule
-* 3rd Rule: As fast as possible
+* The 1st Rule: Redis is just Redis
+* The 2nd Rule: See the 1st Rule
+* The 3rd Rule: As fast as possible
 
 ## Play on the Fly
-* java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf
-
-## Debug in Cider
-* (-main "-e" "aaaabbb")
+* how to build: ```lein uberjar```
+* general parser: java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf
+* redisql cli mode: java -jar <redisql.jar> -s"select * from t1;"
+* redisql repl mode: java -jar <redisql.jar> 
 
 ## Schemed Redis
-* naming: _S{set}_
-* versioning: base on 0
+* implement a set of basic sql semantics
+* models: single node or master-slave
+* naming: _{*}_
+* versioning: think about it in future
+* clustering: ok, think about it in future
 
-### Tables
-* _T_ as set, store the scheme root;
-* _T_DN_ as set, store rational **Database** tables name;
-* _T_RN_ as set, store **Redis** tables name;
-* _T_<T>_ as hash, sstore table's scheme: NAME, COLUMN;
-* _T_<T>_C_ as set, store column's name of the table _T_<T>_::COLUMN
-* _T_<T>_C_:<C> as hash, store column's scheme of the column _T_<T>_C_: NAME, NULL?, PK?, DEFAULT
+### Table
 
+### Column
+
+### Describe schemed objects
+
+### Insert
+
+### Update
+
+### Delete
+
+### Select
+
+### Query optimizer
+
+### Order by
+
+### Relations
+
+## References
+* [Twitter clone using PHP and the Redis key-value store](http://redis.io/topics/twitter-clone)
+* [Tree visitor in Clojure](http://www.ibm.com/developerworks/library/j-treevisit/)
+* [A experimental SQL client for the Redis key-value store](https://github.com/kmanley/redisql)
 
 
