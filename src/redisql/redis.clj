@@ -6,6 +6,7 @@
   (:import (redis.clients.jedis Jedis
                                 BinaryJedis
                                 JedisPool
+                                JedisSentinelPool
                                 JedisPoolConfig)
            (redis.clients.util Pool)))
 
@@ -29,7 +30,7 @@
          :columns ""
          :test ""}))
 
-(def ^:dynamic ^:private ^JedisPool *pool* (atom nil))
+(def ^:dynamic ^:private ^Pool *pool* (atom nil))
 
 (defn- read-*config*
   [f]
@@ -51,20 +52,27 @@
 
 (defn- int=
   [x d]
-  (if (nil? x) d (int x)))
+  (if (or (nil? x) (not (integer? x))) d (int x)))
 
 (defn- ^Jedis borrow []
   (.getResource ^JedisPool @*pool*))
 
 (defn- as-pool
-  [{:keys [pool spec] :as c}]
-  (JedisPool. (JedisPoolConfig.)
-              (:host spec)
-              (int= (:port spec) 6379)
-              (int= (:timeout spec) 1000)
-              (:auth spec)
-              (int= (:database spec) 0)
-              client-name))
+  [{:keys [spec sentinel] :as c}]
+  (if-not sentinel
+    (JedisPool. (JedisPoolConfig.)
+                (:host spec)
+                (int= (:port spec) 6379)
+                (int= (:timeout spec) 1000)
+                (:auth spec)
+                (int= (:database spec) 0)
+                client-name)
+    (JedisSentinelPool. (:master sentinel)
+                        (:hosts sentinel)
+                        (JedisPoolConfig.)
+                        (int= (:timout spec) 1000)
+                        (:auth spec)
+                        (int= (:database spec) 0))))
 
 (defn close-pool []
   (when-let [^Pool p @*pool*]
@@ -100,8 +108,8 @@
   (not (empty? (:scheme @*lua*))))
 
 (defn pooled? []
-  (when-let [p @*pool*]
-    (not (nil? p))))
+  (when-let [^Pool p @*pool*]
+    (not (.isClosed p))))
 
 (defn ping []
   (in-pool [j (borrow)]
@@ -136,6 +144,13 @@
   [^String k {:as fs}]
   (in-pool [j (borrow)]
            (.hmset j k ^java.util.Map fs)))
+
+(defn del
+  [& args]
+  (in-pool [j (borrow)]
+           (.del j
+                 ^"[Ljava.lang.String;"
+                 (into-array String args))))
 
 (defn inject-scripts []
   (let [m @*lua*]

@@ -4,6 +4,7 @@
 
 
 (defn cross
+  ([sql dry] (cross sql dry nil))
   ([sql dry conf] (cross sql dry conf 0))
   ([sql dry conf cursor]
    (let [d? (= 1 dry)

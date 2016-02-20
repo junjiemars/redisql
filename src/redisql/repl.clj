@@ -27,15 +27,17 @@
         (flush)
         (recur (str n \newline))))))
 
-(defn run [dry conf]
-  (do
-    (print normal-prompt)
-    (flush))
-  (let [i (input "")]
-    (when-not (empty? i)
-     (try
-       (let [s (b/cross i dry conf)]
-         (p/pprint s))
-       (catch Exception e
-         (println error-prompt e)))
-     (recur dry conf))))
+(defn run
+  ([dry] (run dry nil))
+  ([dry conf]
+   (do
+     (print normal-prompt)
+     (flush))
+   (let [i (input "")]
+     (when-not (empty? i)
+       (try
+         (let [s (b/cross i dry conf)]
+           (p/pprint s))
+         (catch Exception e
+           (println error-prompt e)))
+       (recur dry conf)))))

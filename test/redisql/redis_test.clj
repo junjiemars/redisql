@@ -7,7 +7,7 @@
   ; Redis should on
   (testing "init-pool"
     (is (not (nil? (init-pool)))))
-  
+
   (testing "ping"
     (is (= "PONG" (ping))))
 
@@ -18,9 +18,10 @@
       (is (= ["a" 1] (evalsha h)))))
 
   (testing "hmset"
-    (let [k "X"
+    (let [k (str "X" (rand-int 100))
           fs {"a" "123" "b" "234"}]
-      (is (= "OK" (hmset k fs))))))
+      (is (= "OK" (hmset k fs)))
+      (is (= 1 (del k))))))
 
 (deftest test-redis
   ; Redis should on
@@ -33,10 +34,5 @@
 
   (testing "make-scheme"
     (let [v [0 "create redisql's scheme ok"]]
-      (is (= v (make-scheme)))))
-
-  (comment
-    (testing "make-table"
-      (let [t "X"]
-        (is (vector? (make-table t)))))))
+      (is (= v (make-scheme))))))
 
