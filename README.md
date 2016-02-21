@@ -1,4 +1,4 @@
-# redisql
+# Redisql
 Play Redis as a rational store via SQL
 
 ## Rules of Design
@@ -7,17 +7,17 @@ Play Redis as a rational store via SQL
 * 3rd Rule: As fast as possible
 
 ## Play on the Fly
-* how to build: ```lein uberjar```
-* general parser: java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf
-* redisql cli mode: java -jar <redisql.jar> -s"select * from t1;"
-* redisql repl mode: java -jar <redisql.jar> 
+* How to build: ```lein uberjar```
+* General parser: java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf
+* Redisql CLI mode: java -jar <redisql.jar> -s"select * from t1;"
+* Redisql REPL mode: java -jar <redisql.jar> 
 
 ## Schemed Redis
-* implement a set of basic sql semantics
-* models: single node or master-slave
-* naming: _{*}_
-* versioning: think about it in future
-* clustering: ok, think about it in future
+* Implement a set of basic sql semantics
+* Models: single node or master-slave
+* Naming: \_{*}\_
+* Versioning: think about it in future
+* Clustering: ok, think about it in future
 
 ### [Table](https://en.wikipedia.org/wiki/Table_(database))
 * row: use Hash reprensents the row
@@ -61,6 +61,17 @@ insert into t2(last_name, salary) values('Ben', 1200.50);
 ### Delete
 
 ### Select
+It's a hard job, so I start it with level zero.
+
+* supports single compare expression
+```sql
+select * from t1 where id=101;
+```
+
+* select all
+```sql
+select * from t1;
+```
 
 ### Query optimizer
 

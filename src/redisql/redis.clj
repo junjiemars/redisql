@@ -26,6 +26,7 @@
          :table ""
          :insert ""
          :select ""
+         :select-eq ""
          :describe ""
          :columns ""
          :test ""}))
@@ -194,9 +195,13 @@
 (defn select
   [t c w i]
   (let [t1 (norm t)
-        c1 (first c)]
-    ;; needs where optimizer
-    (evalsha (:select @*lua*) nil t1 i)))
+        s1 @*lua*
+        rs (if-not (empty? w)
+             (let [op (first w)]
+               (cond
+                 (= "=" op) (evalsha (:select-eq s1) nil t1 (last w))))
+             (evalsha (:select s1) nil t1 i))]
+    rs))
 
 (defn describe
   ([t]

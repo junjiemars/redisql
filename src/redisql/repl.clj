@@ -37,7 +37,8 @@
      (when-not (empty? i)
        (try
          (let [s (b/cross i dry conf)]
-           (p/pprint s))
+           (doseq [s1 s]
+             (p/pprint s1)))
          (catch Exception e
            (println error-prompt e)))
        (recur dry conf)))))

@@ -8,12 +8,15 @@
                     :type nil
                     :not-nil? 0 :pk? 0 :default 0})
 
-(defn- column-vistor [zipper fn]
+(defn- visitor [zipper fn]
   (loop [z zipper
          f fn]
     (if (z/end? z)
       (z/root z)
       (recur (z/next (f z)) f))))
+
+(defn prefix [[id op val]]
+  [op id val])
 
 (defn- define-column [zipper]
   (let [z zipper
@@ -43,6 +46,26 @@
         (z/edit u2 (fn [_] ["DEFAULT" d1])))
       :else z)))
 
+(defn- eval-where [zipper]
+  (let [z zipper
+        n (z/node z)]
+    (cond
+      (= :comp_op n)
+      (let [u1 (z/up z)
+            n1 (z/node (z/right z))]
+        (z/edit u1 (fn [_] n1)))
+      (= :d_id n)
+      (let [u1 (z/up z)
+            n1 (z/node (z/right z))]
+        (z/edit u1 (fn [_] n1)))
+      :else z)))
+
+(defn- where? [w]
+  (when-let [w1 (first w)]
+    (let [w2 (visitor (z/vector-zip w1) eval-where)
+          w3 (rest (first (rest w2)))]
+      (prefix (vec w3)))))
+
 (defn cross
   ([sql dry] (cross sql dry nil))
   ([sql dry conf] (cross sql dry conf 0))
@@ -63,7 +86,7 @@
            (condp = k
              :create
              (let [z1 (z/vector-zip (:column v))
-                   v1 (column-vistor z1 define-column)
+                   v1 (visitor z1 define-column)
                    c1 (rest v1)
                    v2 (map flatten (map #(rest %) c1))]
                (r/make-table (:table v) v2))
@@ -75,13 +98,11 @@
                i)
              
              :select
-             (let [f (fn [c]
-                       (r/select (:table v)
-                                 (:column v)
-                                 (:where v)
-                                 c))
-                   l (f cursor)]
-               (rest (f cursor)))
+             (let [w (where? (:where v))]
+               (r/select (:table v)
+                         (:column v)
+                         w
+                         cursor))
 
              :describe
              (let [s (r/describe (:table v))]

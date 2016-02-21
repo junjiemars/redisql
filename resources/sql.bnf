@@ -11,7 +11,7 @@ l_value = <l_paren> (n_value | n_value (<comma> n_value)*) <r_paren>
 l_d_column = <l_paren> (d_column | d_column (<comma> d_column)*)+ <r_paren>
 s_l_column = ('*'|s_column)
 <s_column> = (n_column | n_column (<comma> n_column)*)+
-b_expr = b_term | (b_term b_op b_expr)
+b_expr = b_term 
 b_term = d_id comp_op n_value
 
 d_column = d_id d_type d_col_constraint
