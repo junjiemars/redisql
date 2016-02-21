@@ -8,9 +8,9 @@ Play Redis as a rational store via SQL
 
 ## Play on the Fly
 * How to build: ```lein uberjar```
-* General parser: java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf
-* Redisql CLI mode: java -jar <redisql.jar> -s"select * from t1;"
-* Redisql REPL mode: java -jar <redisql.jar> 
+* General parser: ```java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf```
+* Redisql CLI mode: ```java -jar <redisql.jar> -s"select * from t1;"```
+* Redisql REPL mode: ```java -jar <redisql.jar>```
 
 ## Schemed Redis
 * Implement a set of basic sql semantics
