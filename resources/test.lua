@@ -14,4 +14,9 @@ for j=1,na do
     redis.log(ll, m)
 end
 
+if (1 <= na) and ('X' == ARGV[1]) then
+    redis.log(ll, 'testing pcall')
+    return redis.pcall('get', 'X')
+end
+
 return {nk, na}

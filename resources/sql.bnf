@@ -16,19 +16,22 @@ b_term = d_id comp_op n_value
 
 d_column = d_id d_type d_col_constraint
 d_id = id
-<d_type> = d_number | d_string
-d_col_constraint = (k_not_null | k_primary_key | d_default)*
+d_type = d_number | d_string
+d_col_constraint = d_primary_key | [d_not_null] [d_default] | [d_default] [d_not_null]
+<d_primary_key> = k_primary_key | k_identity
+d_not_null = k_not_null
 d_default = <'default'> n_value
-d_number = 'number' <l_paren> <positive_int> <comma> <positive_int> <r_paren>
-d_string = 'varchar2' <l_paren> <positive_int> <r_paren>
+<d_number> = 'number' <l_paren> <positive_int> <comma> <positive_int> <r_paren>
+<d_string> = 'varchar2' <l_paren> <positive_int> <r_paren>
 
 k_insert = 'insert'
 k_into = 'into'
 k_values = 'values'
 k_create = 'create'
 k_table = 'table'
-k_not_null = <#"not\s+null">
+<k_not_null> = <#"not\s+null">
 k_primary_key = <#"primary\s+key">
+k_identity = <'identity'>
 k_select = 'select'
 k_from = 'from'
 k_where = 'where'

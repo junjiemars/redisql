@@ -22,12 +22,8 @@ end
 
 local def_pk = function(t, v, an, av)
     local pk = t..'C_PK_'
-    if ('PRIMARY_KEY' == an) then
-        if (1 == tonumber(av)) then
-            redis.call('sadd', pk, v)
-        else
-            redis.call('srem', pk, v)
-        end
+    if ('PRIMARY_KEY' == an) or ('IDENTITY' == an) then
+        redis.call('set', pk, v)
         redis.log(level, string.format('def pk %s:%s=%s', pk, v, av))
     end
     return v
@@ -54,8 +50,8 @@ if (4 <= na) then
     for i=4,na,2 do
         local an = ARGV[i]
         local av = ARGV[i+1]
-        def_pk(t, v, an, av)
         def_attribute(d, an, av)
+        def_pk(t, v, an, av)
     end
 end
 

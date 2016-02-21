@@ -178,16 +178,12 @@
              v []]
         (if (empty? i)
           v
-          (let [d1 (map (fn [x]
-                          (vector (norm (name (first x)))
-                                  (norm (second x))))
-                        (first i))
-                d2 (conj d1 t1)]
+          (let [d1 (conj (first i) t1)]
             (recur (rest i)
                    (conj v
                          (evalsha (:table @*lua*)
                                   nil
-                                  d2)))))))))
+                                  d1)))))))))
 
 (defn insert
   [t c v]

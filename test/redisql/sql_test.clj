@@ -11,15 +11,15 @@
                     [:l_d_column
                      [:d_column
                       [:d_id "ID"]
-                      [:d_number "number"]
-                      [:d_col_constraint [:k_not_null] [:k_primary_key]]]
+                      [:d_type "number"]
+                      [:d_col_constraint [:k_primary_key]]]
                      [:d_column
                       [:d_id "last_name"]
-                      [:d_string "varchar2"]
-                      [:d_col_constraint [:k_not_null]]]
+                      [:d_type "varchar2"]
+                      [:d_col_constraint [:d_not_null]]]
                      [:d_column
                       [:d_id "salary"]
-                      [:d_number "number"]
+                      [:d_type "number"]
                       [:d_col_constraint [:d_default "0.0"]]]]]]})
 
 (def dry-insert= {:failure nil,
@@ -33,7 +33,7 @@
 (deftest test-sql-dry-parse
     (testing "create table statement"
     (let [s "create table T1 (
-               ID number(4,0) not null primary key,
+               ID number(4,0) primary key,
                last_name varchar2(30) not null
                salary number(6,2) default 0.0);"
           d (parse s true)]
