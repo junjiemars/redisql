@@ -22,7 +22,7 @@ d_col_constraint = d_primary_key | [d_not_null] [d_default] | [d_default] [d_not
 d_not_null = k_not_null
 d_default = <'default'> n_value
 <d_number> = 'number' <l_paren> <positive_int> <comma> <positive_int> <r_paren>
-<d_string> = 'varchar2' <l_paren> <positive_int> <r_paren>
+<d_string> = ('varchar' | 'varchar2') <l_paren> <positive_int> <r_paren>
 
 k_insert = 'insert'
 k_into = 'into'

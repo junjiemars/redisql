@@ -13,8 +13,7 @@
 (def ^:private client-name (str "redisql-" u/pid))
 
 (def ^:dynamic ^:private *config*
-  (atom {:pool {}
-         :spec {:host "localhost"
+  (atom {:spec {:host "localhost"
                 :port 6379
                 :timeout 1000
                 :database 0
@@ -27,6 +26,7 @@
          :insert ""
          :select ""
          :select-eq ""
+         :select-comp ""
          :describe ""
          :columns ""
          :test ""}))
@@ -48,13 +48,6 @@
      (catch Exception e
        (log/error e)))))
 
-(defn- norm [s]
-  (s/upper-case s))
-
-(defn- int=
-  [x d]
-  (if (or (nil? x) (not (integer? x))) d (int x)))
-
 (defn- ^Jedis borrow []
   (.getResource ^JedisPool @*pool*))
 
@@ -63,17 +56,17 @@
   (if-not sentinel
     (JedisPool. (JedisPoolConfig.)
                 (:host spec)
-                (int= (:port spec) 6379)
-                (int= (:timeout spec) 1000)
+                (u/int= (:port spec) 6379)
+                (u/int= (:timeout spec) 1000)
                 (:auth spec)
-                (int= (:database spec) 0)
+                (u/int= (:database spec) 0)
                 client-name)
     (JedisSentinelPool. (:master sentinel)
                         (:hosts sentinel)
                         (JedisPoolConfig.)
-                        (int= (:timout spec) 1000)
+                        (u/int= (:timout spec) 1000)
                         (:auth spec)
-                        (int= (:database spec) 0))))
+                        (u/int= (:database spec) 0))))
 
 (defn close-pool []
   (when-let [^Pool p @*pool*]
@@ -174,7 +167,7 @@
 (defn make-table
   [t d]
   (when-let [s (make-scheme)]
-    (let [t1 (norm t)]
+    (let [t1 t]
       (loop [i d
              v []]
         (if (empty? i)
@@ -188,18 +181,21 @@
 
 (defn insert
   [t c v]
-  (let [r1 (map #(vector (norm %1) %2) c v)
-        r2 (conj r1 (norm t))]
+  (let [r1 (map #(vector (u/norm %1) %2) c v)
+        r2 (conj r1 t)]
     (evalsha (:insert @*lua*) nil r2)))
 
 (defn select
   [t c w i]
-  (let [t1 (norm t)
+  (let [t1 t
         s1 @*lua*
         rs (if-not (empty? w)
              (let [op (first w)]
                (cond
-                 (= "=" op) (evalsha (:select-eq s1) nil t1 (last w))))
+                 (= "=" op)
+                 (evalsha (:select-eq s1) nil t1 w)
+                 :else
+                 (evalsha (:select-comp s1) nil t1 i w)))
              (evalsha (:select s1) nil t1 i))]
     rs))
 
@@ -208,9 +204,9 @@
    (let [l (:describe @*lua*)]
      (if (nil? t)
        (evalsha l nil)
-       (let [t1 (norm t)]
+       (let [t1 (u/norm t)]
          (evalsha l nil t1))))))
 
 (defn columns
   [t]
-  (evalsha (:columns @*lua*) nil (norm t)))
+  (evalsha (:columns @*lua*) nil (u/norm t)))

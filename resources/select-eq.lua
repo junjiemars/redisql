@@ -1,5 +1,5 @@
 local na = #ARGV
-local v = {}
+local m = nil
 local level = redis.LOG_NOTICE
 
 local table_exists = function(t) 
@@ -23,25 +23,40 @@ local find_pk = function(t)
     return {n=cd, pk=v[1], t=v[2]}
 end
 
-if (2 > na) then
-    return {-1, "should provides arguments [table cursor]"}
+if (4 > na) then
+    m = "should provides enough arguments(>=4)"
+    redis.log(level, m)
+    return {-1, m}
 end
 
 local t = ARGV[1]
 if (not table_exists(t)) then
-    return {-00942, string.format('table does not exist', t)}
+    m = string.format('table does not exist', t)
+    redis.log(level, m)
+    return {-00942, m}
+end
+
+local op = ARGV[2]
+if ('=' ~= op) then
+    m = string.format('unsupported operator: %s', op)
+    redis.log(level, m)
+    return {-30462, m}
 end
 
 local pk = find_pk(t)
-if (nil == pk) then
-    redis.log(level, string.format('no primary keys in table %s', t))
-    return {-02270, 'primary key does not exist'}
+local c = ARGV[3]
+if (nil == pk) or (c ~= pk['n']) then
+    m = string.format('%s is not the primary key in table:%s', c, t)
+    redis.log(level, m)
+    return {-02270, m}
 end
 
-local v = ARGV[2]
-local vd = string.format('_T_[%s]:[%s]:<%s>_', t, pk['n'], v)
+local v = ARGV[4]
+local pkd = string.format('_T_[%s]:[%s]:<%s>_', t, pk['n'], v)
 local r1 = {}
-r1[#r1+1] = {0, 10}
-r1[#r1+1] = redis.call('hgetall', vd)
+r1[#r1+1] = {0, 1}
+r1[#r1+1] = redis.call('hgetall', pkd)
+
+redis.log(level, string.format('retrived [%s %s]', 0, 1))
 
 return r1;

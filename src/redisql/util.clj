@@ -30,3 +30,10 @@
              (catch Exception e
                (println e)))
           "#on-exit")))
+
+(defn norm [s]
+  (s/upper-case s))
+
+(defn int=
+  [x d]
+  (if (or (nil? x) (not (integer? x))) d (int x)))

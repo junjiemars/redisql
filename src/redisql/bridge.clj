@@ -2,7 +2,8 @@
   (:require [redisql.redis :as r]
             [redisql.sql :as sql]
             [clojure.zip :as z]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [redisql.util :as u]))
 
 (def column-define {:name nil
                     :type nil
@@ -29,7 +30,7 @@
       (z/edit z (fn [_] "TYPE"))
       (= "number" n)
       (z/edit z (fn [_] "NUMBER"))
-      (= "varchar2" n)
+      (some #(= % n) ["varchar" "varchar2"])
       (z/edit z (fn [_] "STRING"))
       (= :k_primary_key n)
       (let [u2 (z/up (z/up z))]
@@ -57,7 +58,7 @@
       (= :d_id n)
       (let [u1 (z/up z)
             n1 (z/node (z/right z))]
-        (z/edit u1 (fn [_] n1)))
+        (z/edit u1 (fn [_] (u/norm n1))))
       :else z)))
 
 (defn- where? [w]
@@ -89,17 +90,17 @@
                    v1 (visitor z1 define-column)
                    c1 (rest v1)
                    v2 (map flatten (map #(rest %) c1))]
-               (r/make-table (:table v) v2))
+               (r/make-table (u/norm (:table v)) v2))
              
              :insert
-             (let [i (r/insert (:table v)
+             (let [i (r/insert (u/norm (:table v))
                                (:column v)
                                (:value v))]
                i)
              
              :select
              (let [w (where? (:where v))]
-               (r/select (:table v)
+               (r/select (u/norm (:table v))
                          (:column v)
                          w
                          cursor))

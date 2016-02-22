@@ -54,8 +54,7 @@ Just go:
 ```sql
 insert into t1(id, last_name, salary) values (101, 'Anny', 1200);
 insert into t2(last_name, salary) values('Ben', 1200.50);
-```
-
+``` 
 ### Update
 
 ### Delete
@@ -66,6 +65,8 @@ It's a hard job, so I start it with level zero.
 * supports single compare expression
 ```sql
 select * from t1 where id=101;
+select * from t2 where id >= 101;
+select * from t3 where id <= 'aaa';
 ```
 
 * select all
