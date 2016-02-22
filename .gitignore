@@ -13,5 +13,4 @@ deps/
 .idea/
 .nrepl-port
 redisql.log
-redis.conf
 \*cider-repl*
