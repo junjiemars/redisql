@@ -2,6 +2,7 @@
   (:require [clojure.tools.logging :as log]
             [instaparse.core :as i]
             [clojure.java.io :as io]))
+
 (def whitespace (i/parser "whitespace = #'\\s+'"))
 
 (def bnf (i/parser (slurp (io/resource "sql.bnf"))

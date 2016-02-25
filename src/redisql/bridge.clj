@@ -75,6 +75,7 @@
          {:keys [failure ast]} (sql/parse sql d?)]
      (cond
        failure failure
+       (nil? ast) nil
        (pos? dry) ast
        :else
        (do

@@ -199,13 +199,12 @@
              (evalsha (:select s1) nil t1 i))]
     rs))
 
-(defn describe
-  ([t]
-   (let [l (:describe @*lua*)]
-     (if (nil? t)
-       (evalsha l nil)
-       (let [t1 (u/norm t)]
-         (evalsha l nil t1))))))
+(defn describe [t]
+  (let [l (:describe @*lua*)]
+    (if (nil? t)
+      (evalsha l nil)
+      (let [t1 (u/norm t)]
+        (evalsha l nil t1)))))
 
 (defn columns
   [t]

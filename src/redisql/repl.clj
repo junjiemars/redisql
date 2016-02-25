@@ -3,12 +3,14 @@
             [clojure.pprint :as p]
             [redisql.redis :as r]
             [redisql.bridge :as b]
-            [redisql.util :as u]))
+            [redisql.util :as u]
+            [clojure.string :as s]))
 
 (def normal-prompt "redisql> ")
 (def error-prompt "redisql# ")
 (def indent-prompt "..redisql> ")
 (def quit-prompt "quit")
+(def cmd-pattern #"^\s*(^:[a-zA-Z]+)(\s+(\w+))?\s*;")
 
 (defn input [p]
   (let [c (read-line)
@@ -19,13 +21,14 @@
                    (print normal-prompt)
                    (flush)
                    (recur n))
-      (= quit-prompt n) (u/exit 0)
       (and (not (empty? n)) (= \; (last n))) n
       :else
       (do
         (print indent-prompt)
         (flush)
         (recur (str n \newline))))))
+
+(declare cmd)
 
 (defn run
   ([dry] (run dry nil))
@@ -36,9 +39,18 @@
    (let [i (input "")]
      (when-not (empty? i)
        (try
-         (let [s (b/cross i dry conf)]
-           (doseq [s1 s]
-             (p/pprint s1)))
+         (when-not (cmd i)
+           (let [s (b/cross i dry conf)]
+             (doseq [s1 s]
+               (p/pprint s1))))
          (catch Exception e
            (println error-prompt e)))
        (recur dry conf)))))
+
+(defn cmd [s]
+  (when-let [cs (re-find cmd-pattern s)]
+    (when-let [c (second cs)]
+      (when-let [r (cond 
+                     (= ":quit" c) (u/exit 0)
+                     :else false)]
+        true))))

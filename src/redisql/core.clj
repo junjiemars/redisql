@@ -7,12 +7,12 @@
             [redisql.repl :as repl]
             [redisql.bridge :as b]
             [instaparse.core :as i]
-            [redisql.sql :as s])
+            [redisql.sql :as sql])
   (:gen-class))
 
 (defn parse
   [bnf input]
-  (let [p (i/parser bnf :auto-whitespace s/whitespace)
+  (let [p (i/parser bnf :auto-whitespace sql/whitespace)
         out (i/parse p input)]
     (if (i/failure? out)
       (i/get-failure out)

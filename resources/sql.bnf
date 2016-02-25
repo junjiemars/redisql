@@ -1,4 +1,4 @@
-s = (insert|create|select|describe) <';'>
+s = (insert|create|select|describe)? <end>+
 
 insert = <k_insert> <k_into> n_table l_column <k_values> l_value
 create = <k_create> <k_table> n_table l_d_column
@@ -17,7 +17,9 @@ b_term = d_id comp_op n_value
 d_column = d_id d_type d_col_constraint
 d_id = id
 d_type = d_number | d_string
-d_col_constraint = d_primary_key | [d_not_null] [d_default] | [d_default] [d_not_null]
+d_col_constraint = d_primary_key
+                 | [d_not_null] [d_default]
+                 | [d_default] [d_not_null]
 <d_primary_key> = k_primary_key | k_identity
 d_not_null = k_not_null
 d_default = <'default'> n_value
@@ -52,4 +54,5 @@ r_paren = ')'
 <string> = <"'"> #"[\w\p{L}]+" <"'">
 <number> = #"([+-])?[0-9]+(\.?[0-9]*)"
 <digit> = #"[0-9]"
+<end> = ';'
 
