@@ -1,5 +1,5 @@
 (defproject redisql "0.1.0"
-  :description "redis query language like sql"
+  :description "Play Redis as a rational store via SQL"
   :url "https://github.com/junjiemars/redisql"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
