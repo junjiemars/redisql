@@ -7,7 +7,18 @@ Play Redis as a rational store via SQL
 * 3rd Rule: As fast as possible
 
 ## Play on the Fly
-* How to build: ```lein uberjar```
+* How to build: 
+```sh
+lein uberjar
+```
+or 
+```sh
+boot build --pro
+```
+* Run test:
+```sh
+boot test
+```
 * General parser: ```java -jar <redisql.jar> -e"aaaabbbb" -b@sample.bnf```
 * Redisql CLI mode: ```java -jar <redisql.jar> -s"select * from t1;"```
 * Redisql REPL mode: ```java -jar <redisql.jar>```
